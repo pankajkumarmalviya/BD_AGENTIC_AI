@@ -31,12 +31,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR-USERNAME/bridge-cli-skill.git"
+    "url": "https://github.com/pankajkumarmalviya/BD_AGENTIC_AI.git"
   },
   "bugs": {
-    "url": "https://github.com/YOUR-USERNAME/bridge-cli-skill/issues"
+    "url": "https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/issues"
   },
-  "homepage": "https://github.com/YOUR-USERNAME/bridge-cli-skill#readme",
+  "homepage": "https://github.com/pankajkumarmalviya/BD_AGENTIC_AI#readme",
   "engines": {
     "node": ">=18"
   }

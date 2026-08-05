@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 ### Reporting Issues
 
-- Use the [GitHub Issues](https://github.com/YOUR-USERNAME/bridge-cli-skill/issues) page
+- Use the [GitHub Issues](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/issues) page
 - Search existing issues before creating a new one
 - Include as much detail as possible:
   - AI assistant and version
@@ -35,7 +35,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/bridge-cli-skill.git
+   git clone https://github.com/pankajkumarmalviya/BD_AGENTIC_AI.git
    cd bridge-cli-skill
    ```
 

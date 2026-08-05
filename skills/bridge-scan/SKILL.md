@@ -59,7 +59,7 @@ Wait for user selection.
 
 #### For Polaris:
 Ask for:
-- Server URL (e.g., `https://polaris.synopsys.com` or company-specific)
+- Server URL (e.g., `https://polaris.blackduck.com` or company-specific)
 - Access Token (will be masked in display)
 - Application Name (suggest based on current directory/repo name)
 - Project Name (suggest based on current directory/repo name)

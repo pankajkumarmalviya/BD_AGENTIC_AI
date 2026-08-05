@@ -36,5 +36,5 @@ if [ -f "$(dirname "$0")/cli/install.js" ]; then
     node "$(dirname "$0")/cli/install.js" "$@"
 else
     echo -e "${YELLOW}Downloading and running installer...${NC}"
-    npx -y github:YOUR-USERNAME/bridge-cli-skill "$@"
+    npx -y github:pankajkumarmalviya/BD_AGENTIC_AI "$@"
 fi

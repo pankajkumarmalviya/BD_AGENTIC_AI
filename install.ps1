@@ -34,5 +34,5 @@ if (Test-Path $installScript) {
     node $installScript $args
 } else {
     Write-Host "Downloading and running installer..." -ForegroundColor Yellow
-    npx -y github:YOUR-USERNAME/bridge-cli-skill $args
+    npx -y github:pankajkumarmalviya/BD_AGENTIC_AI $args
 }

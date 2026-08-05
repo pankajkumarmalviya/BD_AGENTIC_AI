@@ -7,13 +7,13 @@ Complete installation instructions for Bridge CLI Skill across all supported AI 
 ### macOS / Linux / WSL / Git Bash
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/YOUR-USERNAME/bridge-cli-skill/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-iwr https://raw.githubusercontent.com/YOUR-USERNAME/bridge-cli-skill/main/install.ps1 | iex
+iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.ps1 | iex
 ```
 
 The installer automatically detects your installed AI assistants and configures the skill for each one.
@@ -26,7 +26,7 @@ The installer automatically detects your installed AI assistants and configures 
 
 The installer automatically:
 1. Detects your operating system (macOS/Linux/Windows) and architecture
-2. Downloads the correct Bridge CLI binary from Synopsys artifactory
+2. Downloads the correct Bridge CLI binary
 3. Extracts and installs it to your system
 4. Configures the skill for all detected AI assistants
 
@@ -100,7 +100,7 @@ If it doesn't work:
 - Check that the skill files are in the correct location
 - Run the installer again with `--list` flag to see detected assistants:
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/YOUR-USERNAME/bridge-cli-skill/main/install.sh | bash -s -- --list
+  curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash -s -- --list
   ```
 
 ## Uninstall
@@ -109,10 +109,10 @@ If it doesn't work:
 
 ```bash
 # macOS/Linux/WSL
-curl -fsSL https://raw.githubusercontent.com/YOUR-USERNAME/bridge-cli-skill/main/install.sh | bash -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash -s -- --uninstall
 
 # Windows
-iwr https://raw.githubusercontent.com/YOUR-USERNAME/bridge-cli-skill/main/install.ps1 | iex -ArgumentList "--uninstall"
+iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.ps1 | iex -ArgumentList "--uninstall"
 ```
 
 ### Manual Uninstall
@@ -151,15 +151,15 @@ chmod +x install.sh
 ### "Bridge CLI not found" when running scan
 
 The skill requires Bridge CLI to be installed on your system:
-1. Download from [Synopsys Bridge CLI docs](https://sig-product-docs.synopsys.com/bundle/bridge/page/documentation/installation.html)
+1. Download from Bridge CLI official documentation
 2. Make sure it's in your PATH or note the full path
 3. When the skill asks for Bridge CLI location, provide the full path
 
 ## Getting Help
 
-- **Issues**: [GitHub Issues](https://github.com/YOUR-USERNAME/bridge-cli-skill/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR-USERNAME/bridge-cli-skill/discussions)
-- **Bridge CLI Docs**: [Synopsys Documentation](https://sig-product-docs.synopsys.com/bundle/bridge/)
+- **Issues**: [GitHub Issues](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/discussions)
+- **Bridge CLI Docs**: Official Bridge CLI Documentation
 
 ## Next Steps
 
