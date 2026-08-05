@@ -115,8 +115,8 @@ async function extractArchive(archivePath, extractDir) {
   if (isWindows) {
     await execAsync(`powershell -command "Expand-Archive -Path '${archivePath}' -DestinationPath '${extractDir}' -Force"`);
   } else {
-    // macOS/Linux - use unzip
-    await execAsync(`unzip -q "${archivePath}" -d "${extractDir}"`);
+    // macOS/Linux - use unzip (removed -q flag to show progress)
+    await execAsync(`unzip "${archivePath}" -d "${extractDir}"`);
   }
 }
 
