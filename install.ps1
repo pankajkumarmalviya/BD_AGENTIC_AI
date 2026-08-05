@@ -33,14 +33,19 @@ if (Test-Path $installScript) {
     Write-Host "Running from local clone" -ForegroundColor Yellow
     node $installScript $args
 } else {
-    Write-Host "Downloading installer..." -ForegroundColor Yellow
+    Write-Host "Downloading repository..." -ForegroundColor Yellow
     $tempDir = [System.IO.Path]::GetTempPath() + [System.Guid]::NewGuid().ToString()
     New-Item -ItemType Directory -Path $tempDir | Out-Null
 
-    $installerUrl = "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/cli/install.js"
-    $installerPath = Join-Path $tempDir "install.js"
+    $repoUrl = "https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/archive/refs/heads/master.zip"
+    $zipPath = Join-Path $tempDir "repo.zip"
 
-    Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+    Invoke-WebRequest -Uri $repoUrl -OutFile $zipPath
+    Expand-Archive -Path $zipPath -DestinationPath $tempDir
+
+    # The extracted folder will be BD_AGENTIC_AI-master
+    $extractedDir = Join-Path $tempDir "BD_AGENTIC_AI-master"
+    $installerPath = Join-Path $extractedDir "cli\install.js"
 
     Write-Host "Running installer..." -ForegroundColor Yellow
     node $installerPath $args
