@@ -107,11 +107,13 @@ If it doesn't work:
 
 ### Automatic Uninstall
 
+**macOS / Linux / WSL / Git Bash:**
 ```bash
-# macOS/Linux/WSL
 curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --uninstall
+```
 
-# Windows
+**Windows PowerShell:**
+```powershell
 iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex -ArgumentList "--uninstall"
 ```
 

@@ -162,11 +162,14 @@ npm run uninstall
 ```
 
 ### From Remote
-```bash
-# macOS/Linux/WSL
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --uninstall
 
-# Windows
+**macOS / Linux / WSL / Git Bash:**
+```bash
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --uninstall
+```
+
+**Windows PowerShell:**
+```powershell
 iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex -ArgumentList "--uninstall"
 ```
 
