@@ -38,13 +38,13 @@ Token saved. Brain still big.
 ### macOS · Linux · WSL · Git Bash
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.ps1 | iex
+iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex
 ```
 
 One command installs **BOTH**:
@@ -164,10 +164,10 @@ npm run uninstall
 ### From Remote
 ```bash
 # macOS/Linux/WSL
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --uninstall
 
 # Windows
-iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.ps1 | iex -ArgumentList "--uninstall"
+iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex -ArgumentList "--uninstall"
 ```
 
 ## Privacy
@@ -178,7 +178,7 @@ Bridge scanner no phone home. No telemetry. No accounts. No backend. All local. 
 
 - [Installation Guide](INSTALL.md) - Per-agent install instructions
 - [Skill README](skills/bridge-scan/README.md) - How the skill works
-- [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/main/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
+- [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/master/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
 
 ## Contributing
 

@@ -7,13 +7,13 @@ Complete installation instructions for Bridge CLI Skill across all supported AI 
 ### macOS / Linux / WSL / Git Bash
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.ps1 | iex
+iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex
 ```
 
 The installer automatically detects your installed AI assistants and configures the skill for each one.
@@ -100,7 +100,7 @@ If it doesn't work:
 - Check that the skill files are in the correct location
 - Run the installer again with `--list` flag to see detected assistants:
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash -s -- --list
+  curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --list
   ```
 
 ## Uninstall
@@ -109,10 +109,10 @@ If it doesn't work:
 
 ```bash
 # macOS/Linux/WSL
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.sh | bash -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --uninstall
 
 # Windows
-iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/main/install.ps1 | iex -ArgumentList "--uninstall"
+iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex -ArgumentList "--uninstall"
 ```
 
 ### Manual Uninstall
