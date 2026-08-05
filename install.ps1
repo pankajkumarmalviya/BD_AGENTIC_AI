@@ -33,6 +33,17 @@ if (Test-Path $installScript) {
     Write-Host "Running from local clone" -ForegroundColor Yellow
     node $installScript $args
 } else {
-    Write-Host "Downloading and running installer..." -ForegroundColor Yellow
-    npx -y github:pankajkumarmalviya/BD_AGENTIC_AI $args
+    Write-Host "Downloading installer..." -ForegroundColor Yellow
+    $tempDir = [System.IO.Path]::GetTempPath() + [System.Guid]::NewGuid().ToString()
+    New-Item -ItemType Directory -Path $tempDir | Out-Null
+
+    $installerUrl = "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/cli/install.js"
+    $installerPath = Join-Path $tempDir "install.js"
+
+    Invoke-WebRequest -Uri $installerUrl -OutFile $installerPath
+
+    Write-Host "Running installer..." -ForegroundColor Yellow
+    node $installerPath $args
+
+    Remove-Item -Recurse -Force $tempDir
 }

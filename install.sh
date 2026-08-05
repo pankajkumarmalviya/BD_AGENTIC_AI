@@ -35,6 +35,12 @@ if [ -f "$(dirname "$0")/cli/install.js" ]; then
     echo -e "${YELLOW}Running from local clone${NC}"
     node "$(dirname "$0")/cli/install.js" "$@"
 else
-    echo -e "${YELLOW}Downloading and running installer...${NC}"
-    npx -y github:pankajkumarmalviya/BD_AGENTIC_AI "$@"
+    echo -e "${YELLOW}Downloading installer...${NC}"
+    TEMP_DIR=$(mktemp -d)
+    trap "rm -rf $TEMP_DIR" EXIT
+
+    curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/cli/install.js -o "$TEMP_DIR/install.js"
+
+    echo -e "${YELLOW}Running installer...${NC}"
+    node "$TEMP_DIR/install.js" "$@"
 fi
