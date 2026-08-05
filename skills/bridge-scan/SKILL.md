@@ -173,14 +173,23 @@ Use Bash tool to check (portable across macOS, Linux, Windows Git Bash):
 ```bash
 if command -v bridge-cli >/dev/null 2>&1; then
   command -v bridge-cli
-elif [ -f ./bridge-cli-bundle-*/bridge-cli ] 2>/dev/null || find . -maxdepth 2 -path './bridge-cli-bundle-*/bridge-cli' -print -quit 2>/dev/null | grep -q .; then
-  find . -maxdepth 2 -path './bridge-cli-bundle-*/bridge-cli' -print -quit 2>/dev/null
-elif [ -f ~/bridge-cli/bridge-cli-bundle-*/bridge-cli ] 2>/dev/null || find ~/bridge-cli -maxdepth 2 -name 'bridge-cli' -type f -print -quit 2>/dev/null | grep -q .; then
-  find ~/bridge-cli -maxdepth 2 -name 'bridge-cli' -type f -print -quit 2>/dev/null
-elif [ -f /usr/local/bin/bridge-cli ]; then
-  echo /usr/local/bin/bridge-cli
 else
-  echo "NOT_FOUND"
+  # Try to find in common locations
+  BRIDGE_PATH=$(find . -maxdepth 2 -type f -name 'bridge-cli' -o -path '*/bridge-cli-bundle-*/bridge-cli' 2>/dev/null | head -1)
+
+  if [ -z "$BRIDGE_PATH" ]; then
+    BRIDGE_PATH=$(find ~/bridge-cli -maxdepth 2 -type f -name 'bridge-cli' 2>/dev/null | head -1)
+  fi
+
+  if [ -z "$BRIDGE_PATH" ] && [ -f /usr/local/bin/bridge-cli ]; then
+    BRIDGE_PATH="/usr/local/bin/bridge-cli"
+  fi
+
+  if [ -n "$BRIDGE_PATH" ]; then
+    echo "$BRIDGE_PATH"
+  else
+    echo "NOT_FOUND"
+  fi
 fi
 ```
 
