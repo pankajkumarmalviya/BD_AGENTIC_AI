@@ -7,7 +7,7 @@ Complete installation instructions for Bridge CLI Skill across all supported AI 
 ### macOS / Linux / WSL / Git Bash
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash
 ```
 
 ### Windows PowerShell
@@ -100,7 +100,7 @@ If it doesn't work:
 - Check that the skill files are in the correct location
 - Run the installer again with `--list` flag to see detected assistants:
   ```bash
-  curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash -s -- --list
+  curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --list
   ```
 
 ## Uninstall
@@ -109,7 +109,7 @@ If it doesn't work:
 
 **macOS / Linux / WSL / Git Bash:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash -s -- --uninstall
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --uninstall
 ```
 
 **Windows PowerShell:**

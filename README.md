@@ -38,7 +38,7 @@ Token saved. Brain still big.
 ### macOS · Linux · WSL · Git Bash
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash
 ```
 
 ### Windows PowerShell
@@ -165,7 +165,7 @@ npm run uninstall
 
 **macOS / Linux / WSL / Git Bash:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash -s -- --uninstall
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --uninstall
 ```
 
 **Windows PowerShell:**
