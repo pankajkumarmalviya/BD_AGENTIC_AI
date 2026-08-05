@@ -38,13 +38,13 @@ Token saved. Brain still big.
 ### macOS · Linux · WSL · Git Bash
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex
 ```
 
 One command installs **BOTH**:
@@ -165,12 +165,12 @@ npm run uninstall
 
 **macOS / Linux / WSL / Git Bash:**
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh | bash -s -- --uninstall
+curl -fsSL https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2 | bash -s -- --uninstall
 ```
 
 **Windows PowerShell:**
 ```powershell
-iwr https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1 | iex -ArgumentList "--uninstall"
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex -ArgumentList "--uninstall"
 ```
 
 ## Privacy
