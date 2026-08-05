@@ -1,0 +1,43 @@
+{
+  "name": "bridge-cli-skill",
+  "version": "1.0.0",
+  "description": "Interactive Bridge CLI security scanner skill for AI coding assistants",
+  "main": "cli/install.js",
+  "bin": {
+    "bridge-cli-skill": "./cli/install.js"
+  },
+  "scripts": {
+    "install": "node cli/install.js",
+    "uninstall": "node cli/uninstall.js",
+    "list": "node cli/install.js --list",
+    "update-bridge": "node cli/install.js --update-bridge-cli"
+  },
+  "keywords": [
+    "bridge-cli",
+    "polaris",
+    "black-duck",
+    "coverity",
+    "srm",
+    "security",
+    "sast",
+    "sca",
+    "claude-code",
+    "cursor",
+    "copilot",
+    "ai-assistant",
+    "skill"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR-USERNAME/bridge-cli-skill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR-USERNAME/bridge-cli-skill/issues"
+  },
+  "homepage": "https://github.com/YOUR-USERNAME/bridge-cli-skill#readme",
+  "engines": {
+    "node": ">=18"
+  }
+}
