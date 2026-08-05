@@ -7,7 +7,7 @@
     "bridge-cli-skill": "./cli/install.js"
   },
   "scripts": {
-    "install": "node cli/install.js",
+    "postinstall": "node cli/install.js",
     "uninstall": "node cli/uninstall.js",
     "list": "node cli/install.js --list",
     "update-bridge": "node cli/install.js --update-bridge-cli"
