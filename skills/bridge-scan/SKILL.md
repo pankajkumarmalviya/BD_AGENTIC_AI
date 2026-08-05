@@ -171,25 +171,31 @@ Check for Bridge CLI in these locations (in order):
 
 Use Bash tool to check (portable across macOS, Linux, Windows Git Bash):
 ```bash
+# Check if bridge-cli is in PATH
 if command -v bridge-cli >/dev/null 2>&1; then
   command -v bridge-cli
+  exit 0
+fi
+
+# Try to find bridge-cli or bridge-cli.exe in common locations
+# Search current directory and subdirectories (repository root install)
+BRIDGE_PATH=$(find . -maxdepth 3 \( -name 'bridge-cli' -o -name 'bridge-cli.exe' \) -type f 2>/dev/null | head -1)
+
+# If not found, search in ~/bridge-cli (home directory install)
+if [ -z "$BRIDGE_PATH" ]; then
+  BRIDGE_PATH=$(find ~/bridge-cli -maxdepth 3 \( -name 'bridge-cli' -o -name 'bridge-cli.exe' \) -type f 2>/dev/null | head -1)
+fi
+
+# If not found, check /usr/local/bin (system-wide install - macOS/Linux only)
+if [ -z "$BRIDGE_PATH" ] && [ -f /usr/local/bin/bridge-cli ]; then
+  BRIDGE_PATH="/usr/local/bin/bridge-cli"
+fi
+
+# Output result
+if [ -n "$BRIDGE_PATH" ]; then
+  echo "$BRIDGE_PATH"
 else
-  # Try to find in common locations
-  BRIDGE_PATH=$(find . -maxdepth 2 -type f -name 'bridge-cli' -o -path '*/bridge-cli-bundle-*/bridge-cli' 2>/dev/null | head -1)
-
-  if [ -z "$BRIDGE_PATH" ]; then
-    BRIDGE_PATH=$(find ~/bridge-cli -maxdepth 2 -type f -name 'bridge-cli' 2>/dev/null | head -1)
-  fi
-
-  if [ -z "$BRIDGE_PATH" ] && [ -f /usr/local/bin/bridge-cli ]; then
-    BRIDGE_PATH="/usr/local/bin/bridge-cli"
-  fi
-
-  if [ -n "$BRIDGE_PATH" ]; then
-    echo "$BRIDGE_PATH"
-  else
-    echo "NOT_FOUND"
-  fi
+  echo "NOT_FOUND"
 fi
 ```
 
