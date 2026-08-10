@@ -229,6 +229,70 @@ function generateSRMInput(params) {
   return input;
 }
 
+// Generate Signal (AI) input.json
+function generateSignalInput(params) {
+  const input = {
+    data: {
+      ai: {
+        gatewayUrl: params['gateway-url'] || 'https://llm.labs.blackduck.com',
+        gatewayKey: params['gateway-key']
+      },
+      project: {
+        directory: params.directory || process.cwd()
+      },
+      bridge: {
+        invoked: {
+          from: 'bridge-cli-skill'
+        }
+      }
+    }
+  };
+
+  // Optional: Upload to Polaris
+  if (params['polaris-url'] && params['polaris-token']) {
+    input.data.polaris = {
+      serverUrl: params['polaris-url'],
+      accesstoken: params['polaris-token']
+    };
+
+    if (params['project-name']) {
+      input.data.polaris.project = {
+        name: params['project-name']
+      };
+    }
+
+    if (params['app-name']) {
+      input.data.polaris.application = {
+        name: params['app-name']
+      };
+    }
+  }
+
+  // Timeout setting
+  if (params.timeout) {
+    input.data.ai.timeout = parseInt(params.timeout);
+  }
+
+  // Wait for scan
+  if (params['wait-for-scan'] === 'true') {
+    input.data.ai.waitForScan = true;
+  }
+
+  // SARIF report
+  if (params['sarif-report'] === 'true') {
+    input.data.ai.reports = {
+      sarif: {
+        create: true,
+        file: {
+          path: params['sarif-path'] || 'signal-results.sarif'
+        }
+      }
+    };
+  }
+
+  return input;
+}
+
 // Validate required fields
 function validateParams(stage, params) {
   const errors = [];
@@ -259,6 +323,10 @@ function validateParams(stage, params) {
       if (!params['api-key'] && !params.apikey) errors.push('--api-key is required');
       break;
 
+    case 'signal':
+      if (!params['gateway-key']) errors.push('--gateway-key is required');
+      break;
+
     default:
       errors.push(`Unknown stage: ${stage}`);
   }
@@ -283,6 +351,7 @@ Stages:
   blackducksca  - Black Duck SCA
   coverity      - Coverity Connect
   srm           - Security Risk Management
+  signal        - Black Duck Signal (AI-powered analysis)
 
 Common Options:
   --output <file>           Output file path (default: <stage>_input.json)
@@ -323,6 +392,15 @@ SRM Options:
   --branch-name <name>      Branch name
   --parent-branch <name>    Parent branch name
 
+Signal Options:
+  --gateway-url <url>       Signal gateway URL (default: https://llm.labs.blackduck.com)
+  --gateway-key <key>       Signal gateway API key (required)
+  --polaris-url <url>       Polaris server URL (optional, for uploading results)
+  --polaris-token <token>   Polaris access token (optional, for uploading results)
+  --project-name <name>     Project name (optional)
+  --app-name <name>         Application name (optional)
+  --timeout <ms>            Scan timeout in milliseconds (default: 1800000)
+
 Example:
   node generate-input.js --stage polaris \\
     --server-url https://polaris.example.com \\
@@ -356,6 +434,9 @@ Example:
       break;
     case 'srm':
       inputJson = generateSRMInput(params);
+      break;
+    case 'signal':
+      inputJson = generateSignalInput(params);
       break;
     default:
       console.error(`Unknown stage: ${stage}`);
