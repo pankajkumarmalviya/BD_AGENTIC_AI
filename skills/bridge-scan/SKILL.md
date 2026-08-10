@@ -91,16 +91,35 @@ Ask for:
 - Project Name or Project ID
 
 #### For Signal:
+**IMPORTANT:** Signal uses environment variables and CLI arguments (NOT input.json).
+
+First, verify environment variable is set:
+```bash
+echo $BRIDGE_SIGNAL_LLM_KEY
+```
+If not set, instruct user to set it:
+```bash
+export BRIDGE_SIGNAL_LLM_KEY="your-gateway-key"
+# Or add permanently:
+echo 'export BRIDGE_SIGNAL_LLM_KEY="your-key"' >> ~/.zshrc
+source ~/.zshrc
+```
+
 Ask for:
-- Gateway URL (default: `https://llm.labs.blackduck.com`)
-- Gateway API Key (required for AI analysis)
-- Upload to Polaris? (yes/no)
-  - If yes:
-    - Polaris Server URL
-    - Polaris Access Token
-    - Project Name
-    - Application Name
-- Scan timeout (default: 1800000ms / 30 minutes)
+- **Scan Mode** (required):
+  1. **FILES** - Scan specific file patterns (e.g., `**/*.java,**/*.py`)
+  2. **UNCOMMITTED** - Scan uncommitted tracked files in Git
+  3. **REFERENCE** - Scan changes against a reference branch
+
+- **If FILES mode:**
+  - File patterns to include (e.g., `**/*.java` or `**/*.java,**/*.py,**/*.js`)
+
+- **If REFERENCE mode:**
+  - Reference branch (e.g., `origin/main` or `origin/develop`)
+
+- **Upload to Polaris?** (yes/no)
+  - If yes, note that results will be sent to Polaris
+  - If no, SARIF report will be generated locally at `.bridge/signal-controller/results.sarif`
 
 ### Step 4: Additional Options
 
@@ -169,21 +188,9 @@ node cli/generate-input.js --stage srm \
 ```
 
 **For Signal:**
-```bash
-node cli/generate-input.js --stage signal \
-  --gateway-url "<url>" \
-  --gateway-key "<key>" \
-  [--polaris-url "<url>"] \
-  [--polaris-token "<token>"] \
-  [--project-name "<name>"] \
-  [--app-name "<name>"] \
-  [--timeout "<ms>"] \
-  [--wait-for-scan] \
-  [--sarif-report] \
-  [--directory "<path>"]
-```
+Signal does NOT use input.json - skip to Step 7 for Signal execution.
 
-Steps:
+Steps (for Polaris/BlackDuck/Coverity/SRM only):
 1. Build the appropriate command with user-provided values
 2. Run the command using the Bash tool
 3. The script will output "✓ Generated <file>" and show a masked preview
@@ -235,6 +242,8 @@ If user doesn't know, suggest: **"Run the installer first: `node cli/install.js`
 
 **Note:** If remote repo was selected, it should already be cloned (from Step 2) and the directory path included in the input.json (from Step 5).
 
+#### For Polaris, BlackDuck SCA, Coverity, SRM:
+
 Run the Bridge CLI command:
 ```bash
 <bridge-cli-path> --stage <stage> --input <stage>_input.json --out <stage>_output.json
@@ -245,6 +254,52 @@ Steps:
 2. Execute using Bash tool
 3. Display output as it runs (this may take several minutes)
 4. Check exit code - if non-zero, scan failed (proceed to error handling)
+
+#### For Signal:
+
+**Signal uses different execution method** - environment variable + CLI arguments (NO input.json).
+
+Build the command based on scan mode:
+
+**For FILES mode:**
+```bash
+export BRIDGE_SIGNAL_LLM_KEY="<user's-gateway-key>"
+<bridge-cli-path> --stage signal \
+  signal.mode=FILES \
+  signal.include="<file-patterns>" \
+  project.directory="<scan-directory>"
+```
+
+**For UNCOMMITTED mode:**
+```bash
+export BRIDGE_SIGNAL_LLM_KEY="<user's-gateway-key>"
+<bridge-cli-path> --stage signal \
+  signal.mode=UNCOMMITTED \
+  project.directory="<scan-directory>"
+```
+
+**For REFERENCE mode:**
+```bash
+export BRIDGE_SIGNAL_LLM_KEY="<user's-gateway-key>"
+<bridge-cli-path> --stage signal \
+  signal.mode=REFERENCE \
+  signal.git.ref="<reference-branch>" \
+  project.directory="<scan-directory>"
+```
+
+**If user wants Polaris upload**, add these parameters:
+```bash
+polaris.serverUrl="<polaris-url>" \
+polaris.accesstoken="<polaris-token>"
+```
+
+Steps for Signal:
+1. Verify `BRIDGE_SIGNAL_LLM_KEY` is set (check with `echo $BRIDGE_SIGNAL_LLM_KEY`)
+2. Build the appropriate command based on scan mode
+3. Show the exact command to user (mask the API key)
+4. Execute using Bash tool
+5. Signal will generate SARIF report at `.bridge/signal-controller/results.sarif`
+6. Check exit code - if non-zero, scan failed
 
 ### Step 8: Parse and Present Results
 
@@ -278,6 +333,34 @@ Similar format, showing defect counts by impact (High/Medium/Low)
 
 #### For SRM:
 Show assessment results and risk scores
+
+#### For Signal:
+Signal generates a SARIF report at `.bridge/signal-controller/results.sarif`.
+
+Read the SARIF file and present:
+```
+📊 Signal AI Scan Results
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Status: ✅ Completed
+
+Issue Breakdown:
+🔴 Critical: <count from SARIF>
+🟠 High: <count from SARIF>
+🟡 Medium: <count from SARIF>
+🔵 Low: <count from SARIF>
+
+Total Issues: <total>
+
+📄 SARIF Report:
+.bridge/signal-controller/results.sarif
+
+🔗 View in Polaris: <polaris-url> (if Polaris upload was enabled)
+```
+
+If the SARIF file is not found or empty:
+- Check Bridge CLI exit code and error messages
+- Verify `BRIDGE_SIGNAL_LLM_KEY` was set correctly
+- Check if Signal found any files to scan based on the patterns
 
 ### Step 9: Cleanup & Next Steps
 

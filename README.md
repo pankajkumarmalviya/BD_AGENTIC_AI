@@ -156,16 +156,17 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 ### Signal AI Scan
 
 ```
+# First, set environment variable:
+export BRIDGE_SIGNAL_LLM_KEY="your-gateway-key"
+
 /bridge-scan
 → Signal
+→ Scan mode: FILES
+→ File patterns: **/*.java,**/*.py
 → Current directory
-→ Gateway: https://llm.labs.blackduck.com
-→ Gateway Key: ***
-→ Upload to Polaris? Yes
-→ Polaris URL/Token: ***
+→ Upload to Polaris? No
 → ✅ AI scan complete: 12 high-priority issues found
-→ 🔗 View in Polaris
-→ 📄 SARIF: signal-results.sarif
+→ 📄 SARIF: .bridge/signal-controller/results.sarif
 ```
 
 ## Uninstall
