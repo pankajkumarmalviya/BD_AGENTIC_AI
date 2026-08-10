@@ -30,7 +30,6 @@ Present options:
 2. **Black Duck SCA** - Software Composition Analysis only
 3. **Coverity** - Static analysis (compiled languages)
 4. **SRM** - Security Risk Management
-5. **Signal** - AI-powered security analysis (works on ANY language, finds novel bugs)
 
 Wait for user selection.
 
@@ -89,18 +88,6 @@ Ask for:
 - API Key
 - Assessment Types
 - Project Name or Project ID
-
-#### For Signal:
-Ask for:
-- Gateway URL (default: `https://llm.labs.blackduck.com`)
-- Gateway API Key (required for AI analysis)
-- Upload to Polaris? (yes/no)
-  - If yes:
-    - Polaris Server URL
-    - Polaris Access Token
-    - Project Name
-    - Application Name
-- Scan timeout (default: 1800000ms / 30 minutes)
 
 ### Step 4: Additional Options
 
@@ -165,21 +152,6 @@ node cli/generate-input.js --stage srm \
   [--project-name "<name>"] \
   [--branch-name "<branch>"] \
   [--wait-for-scan] \
-  [--directory "<path>"]
-```
-
-**For Signal:**
-```bash
-node cli/generate-input.js --stage signal \
-  --gateway-url "<url>" \
-  --gateway-key "<key>" \
-  [--polaris-url "<url>"] \
-  [--polaris-token "<token>"] \
-  [--project-name "<name>"] \
-  [--app-name "<name>"] \
-  [--timeout "<ms>"] \
-  [--wait-for-scan] \
-  [--sarif-report] \
   [--directory "<path>"]
 ```
 

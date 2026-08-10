@@ -78,7 +78,6 @@ Bridge scanner skill = interactive Bridge CLI wrapper. Asks questions. Builds JS
 2. **Black Duck SCA** - Open source vulnerability analysis
 3. **Coverity** - Static code analysis (compiled languages)
 4. **SRM** - Security Risk Management
-5. **Signal** - AI-powered security analysis (works on ANY language, finds novel bugs)
 
 ### Features
 
@@ -151,21 +150,6 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 → Username/Password: ***
 → Build command: mvn clean package
 → ✅ Scan complete: 8 defects found
-```
-
-### Signal AI Scan
-
-```
-/bridge-scan
-→ Signal
-→ Current directory
-→ Gateway: https://llm.labs.blackduck.com
-→ Gateway Key: ***
-→ Upload to Polaris? Yes
-→ Polaris URL/Token: ***
-→ ✅ AI scan complete: 12 high-priority issues found
-→ 🔗 View in Polaris
-→ 📄 SARIF: signal-results.sarif
 ```
 
 ## Uninstall
