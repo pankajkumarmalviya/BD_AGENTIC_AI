@@ -1,7 +1,5 @@
 # Bridge CLI Security Scanner Skill
 
-> **Branch:** `feature/signal-integration` - Includes Signal (AI) scan support via MCP
-
 One command. Security scans everywhere. Bridge CLI integration for 30+ AI coding assistants.
 
 ## What You Get
@@ -40,15 +38,13 @@ Token saved. Brain still big.
 ### macOS · Linux · WSL · Git Bash
 
 ```bash
-# Install from feature/signal-integration branch (includes Signal AI scan support)
-curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-# Install from feature/signal-integration branch (includes Signal AI scan support)
-iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.ps1?v=2" | iex
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex
 ```
 
 One command installs **BOTH**:
@@ -191,14 +187,12 @@ npm run uninstall
 
 **macOS / Linux / WSL / Git Bash:**
 ```bash
-# Uninstall from feature/signal-integration branch
-curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash -s -- --uninstall
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --uninstall
 ```
 
 **Windows PowerShell:**
 ```powershell
-# Uninstall from feature/signal-integration branch
-iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.ps1?v=2" | iex -ArgumentList "--uninstall"
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex -ArgumentList "--uninstall"
 ```
 
 ## Privacy
@@ -209,7 +203,7 @@ Bridge scanner no phone home. No telemetry. No accounts. No backend. All local. 
 
 - [Installation Guide](INSTALL.md) - Per-agent install instructions
 - [Skill README](skills/bridge-scan/README.md) - How the skill works
-- [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/feature/signal-integration/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
+- [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/master/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
 
 ## Contributing
 
