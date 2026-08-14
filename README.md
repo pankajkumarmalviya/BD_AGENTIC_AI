@@ -78,7 +78,7 @@ Bridge scanner skill = interactive Bridge CLI wrapper. Asks questions. Builds JS
 2. **Black Duck SCA** - Open source vulnerability analysis
 3. **Coverity** - Static code analysis (compiled languages)
 4. **SRM** - Security Risk Management
-5. **Signal** - AI-powered security analysis (works on ANY language, finds novel bugs)
+5. **Signal** - AI-powered security analysis via MCP (works on ANY language, finds novel bugs)
 
 ### Features
 
@@ -98,11 +98,11 @@ After install, type `/bridge-scan` in any supported AI assistant:
 You: /bridge-scan
 
 AI guides you through:
-1. Select scan type (Polaris/BlackDuck/Coverity/SRM)
+1. Select scan type (Polaris/BlackDuck/Coverity/SRM/Signal)
 2. Choose target (local directory or GitHub URL)
-3. Provide credentials
+3. Provide credentials (or use MCP for Signal)
 4. Configure options
-5. Review generated JSON
+5. Review generated JSON (except Signal - uses MCP tools)
 6. Run scan
 7. View formatted results
 ```
@@ -112,8 +112,9 @@ AI guides you through:
 - **Node.js ≥18** - Required for installer ([Download](https://nodejs.org/))
 - **Bridge CLI** - ✅ Auto-installed by this installer!
 - **Security Platform Credentials** - Polaris, Black Duck, Coverity, or SRM access token/credentials
+- **For Signal scans:** Black Duck MCP server + `BRIDGE_SIGNAL_LLM_KEY` environment variable
 
-That's it. Installer handles Bridge CLI download and installation automatically.
+That's it. Installer handles Bridge CLI download and installation automatically. For Signal, see MCP setup instructions.
 
 ## Examples
 
@@ -153,20 +154,24 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 → ✅ Scan complete: 8 defects found
 ```
 
-### Signal AI Scan
+### Signal AI Scan (via MCP)
 
 ```
-# First, set environment variable:
-export BRIDGE_SIGNAL_LLM_KEY="your-gateway-key"
+# Prerequisites: Black Duck MCP server installed + BRIDGE_SIGNAL_LLM_KEY set
 
 /bridge-scan
 → Signal
-→ Scan mode: FILES
-→ File patterns: **/*.java,**/*.py
-→ Current directory
-→ Upload to Polaris? No
-→ ✅ AI scan complete: 12 high-priority issues found
-→ 📄 SARIF: .bridge/signal-controller/results.sarif
+→ What to scan? Specific files
+→ File path: src/SecurityScanner.java
+→ ✅ Scan complete: 1 security warning found
+
+📊 Black Duck Signal AI Scan Results
+🔶 Relative Path Traversal (CVSS 6.5 - Medium)
+Location: src/SecurityScanner.java:148
+Risk: Path traversal sequences could access files outside workspace
+Recommended fix displayed with code example
+
+Would you like me to apply this fix? [Y/N]
 ```
 
 ## Uninstall
