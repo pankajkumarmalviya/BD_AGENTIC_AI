@@ -1,5 +1,7 @@
 # Bridge CLI Security Scanner Skill
 
+> **Branch:** `feature/signal-integration` - Includes Signal (AI) scan support via MCP
+
 One command. Security scans everywhere. Bridge CLI integration for 30+ AI coding assistants.
 
 ## What You Get
@@ -38,13 +40,15 @@ Token saved. Brain still big.
 ### macOS · Linux · WSL · Git Bash
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash
+# Install from feature/signal-integration branch (includes Signal AI scan support)
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex
+# Install from feature/signal-integration branch (includes Signal AI scan support)
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.ps1?v=2" | iex
 ```
 
 One command installs **BOTH**:
@@ -78,6 +82,7 @@ Bridge scanner skill = interactive Bridge CLI wrapper. Asks questions. Builds JS
 2. **Black Duck SCA** - Open source vulnerability analysis
 3. **Coverity** - Static code analysis (compiled languages)
 4. **SRM** - Security Risk Management
+5. **Signal** - AI-powered security analysis via MCP (works on ANY language, finds novel bugs)
 
 ### Features
 
@@ -97,11 +102,11 @@ After install, type `/bridge-scan` in any supported AI assistant:
 You: /bridge-scan
 
 AI guides you through:
-1. Select scan type (Polaris/BlackDuck/Coverity/SRM)
+1. Select scan type (Polaris/BlackDuck/Coverity/SRM/Signal)
 2. Choose target (local directory or GitHub URL)
-3. Provide credentials
+3. Provide credentials (or use MCP for Signal)
 4. Configure options
-5. Review generated JSON
+5. Review generated JSON (except Signal - uses MCP tools)
 6. Run scan
 7. View formatted results
 ```
@@ -111,8 +116,9 @@ AI guides you through:
 - **Node.js ≥18** - Required for installer ([Download](https://nodejs.org/))
 - **Bridge CLI** - ✅ Auto-installed by this installer!
 - **Security Platform Credentials** - Polaris, Black Duck, Coverity, or SRM access token/credentials
+- **For Signal scans:** Black Duck MCP server + `BRIDGE_SIGNAL_LLM_KEY` environment variable
 
-That's it. Installer handles Bridge CLI download and installation automatically.
+That's it. Installer handles Bridge CLI download and installation automatically. For Signal, see MCP setup instructions.
 
 ## Examples
 
@@ -152,6 +158,26 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 → ✅ Scan complete: 8 defects found
 ```
 
+### Signal AI Scan (via MCP)
+
+```
+# Prerequisites: Black Duck MCP server installed + BRIDGE_SIGNAL_LLM_KEY set
+
+/bridge-scan
+→ Signal
+→ What to scan? Specific files
+→ File path: src/SecurityScanner.java
+→ ✅ Scan complete: 1 security warning found
+
+📊 Black Duck Signal AI Scan Results
+🔶 Relative Path Traversal (CVSS 6.5 - Medium)
+Location: src/SecurityScanner.java:148
+Risk: Path traversal sequences could access files outside workspace
+Recommended fix displayed with code example
+
+Would you like me to apply this fix? [Y/N]
+```
+
 ## Uninstall
 
 ### From Local Clone
@@ -165,12 +191,14 @@ npm run uninstall
 
 **macOS / Linux / WSL / Git Bash:**
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --uninstall
+# Uninstall from feature/signal-integration branch
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash -s -- --uninstall
 ```
 
 **Windows PowerShell:**
 ```powershell
-iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex -ArgumentList "--uninstall"
+# Uninstall from feature/signal-integration branch
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.ps1?v=2" | iex -ArgumentList "--uninstall"
 ```
 
 ## Privacy
@@ -181,7 +209,7 @@ Bridge scanner no phone home. No telemetry. No accounts. No backend. All local. 
 
 - [Installation Guide](INSTALL.md) - Per-agent install instructions
 - [Skill README](skills/bridge-scan/README.md) - How the skill works
-- [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/master/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
+- [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/feature/signal-integration/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
 
 ## Contributing
 

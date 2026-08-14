@@ -522,6 +522,7 @@ async function install() {
 async function uninstall() {
   log('\n🗑️  Uninstalling Bridge CLI Skill\n', colors.yellow);
 
+  // Step 1: Remove skill from AI assistants
   const installedAgents = await detectInstalledAgents();
 
   for (const agent of installedAgents) {
@@ -543,6 +544,52 @@ async function uninstall() {
     } catch (err) {
       warn(`Could not uninstall from ${agent.label}: ${err.message}`);
     }
+  }
+
+  // Step 2: Remove Bridge CLI
+  log('\n🗑️  Removing Bridge CLI\n', colors.yellow);
+
+  try {
+    // Remove from repository root
+    const repoRoot = path.join(__dirname, '..');
+    const repoBundleDirs = fs.readdirSync(repoRoot).filter(f => f.startsWith('bridge-cli-bundle'));
+
+    for (const bundleDir of repoBundleDirs) {
+      const bundlePath = path.join(repoRoot, bundleDir);
+      if (fs.existsSync(bundlePath)) {
+        fs.rmSync(bundlePath, { recursive: true, force: true });
+        success(`Removed Bridge CLI from repository: ${bundleDir}`);
+      }
+    }
+
+    // Also remove standalone bridge-cli binary if exists in repo root
+    const repoBridgeCli = path.join(repoRoot, os.platform() === 'win32' ? 'bridge-cli.exe' : 'bridge-cli');
+    if (fs.existsSync(repoBridgeCli)) {
+      fs.unlinkSync(repoBridgeCli);
+      success(`Removed Bridge CLI binary from repository`);
+    }
+
+    // Remove from home directory installation
+    const homeDir = os.homedir();
+    const homeBridgeDir = path.join(homeDir, 'bridge-cli');
+
+    if (fs.existsSync(homeBridgeDir)) {
+      fs.rmSync(homeBridgeDir, { recursive: true, force: true });
+      success(`Removed Bridge CLI from: ${homeBridgeDir}`);
+    }
+
+    // Note: We don't remove from /usr/local/bin as it might be a system-wide install
+    // Users can manually remove if needed
+    if (os.platform() !== 'win32') {
+      const systemPath = '/usr/local/bin/bridge-cli';
+      if (fs.existsSync(systemPath)) {
+        warn(`Bridge CLI found in system location: ${systemPath}`);
+        info(`To remove it, run: sudo rm -rf /usr/local/bin/bridge-cli*`);
+      }
+    }
+
+  } catch (err) {
+    warn(`Could not fully remove Bridge CLI: ${err.message}`);
   }
 
   log('\n✓ Uninstall complete\n', colors.green);

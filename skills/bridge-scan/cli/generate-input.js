@@ -229,6 +229,9 @@ function generateSRMInput(params) {
   return input;
 }
 
+// NOTE: Signal does NOT use input.json - it uses environment variables and CLI arguments
+// Signal is handled differently in SKILL.md
+
 // Validate required fields
 function validateParams(stage, params) {
   const errors = [];
@@ -283,6 +286,8 @@ Stages:
   blackducksca  - Black Duck SCA
   coverity      - Coverity Connect
   srm           - Security Risk Management
+
+Note: Signal (AI-powered analysis) is supported but uses different workflow (see SKILL.md)
 
 Common Options:
   --output <file>           Output file path (default: <stage>_input.json)

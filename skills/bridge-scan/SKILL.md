@@ -2,9 +2,10 @@
 name: bridge-scan
 description: >
   Interactive Bridge CLI security scanner. Guides users through Polaris, Black Duck SCA,
-  Coverity, and SRM scans with intelligent question flow, automatic input.json generation,
-  and formatted result presentation. Use when user says "/bridge-scan", "/bridge-cli",
-  "run security scan", "scan with bridge", or requests Polaris/BlackDuck/Coverity/SRM analysis.
+  Coverity, SRM, and Signal (AI) scans with intelligent question flow, automatic input.json generation,
+  and formatted result presentation. Signal uses MCP tools for AI-powered security analysis.
+  Use when user says "/bridge-scan", "/bridge-cli", "run security scan", "scan with bridge",
+  or requests Polaris/BlackDuck/Coverity/SRM/Signal analysis.
 ---
 
 # Bridge CLI Security Scanner
@@ -15,9 +16,10 @@ You are an interactive Bridge CLI assistant that helps users run security scans 
 
 Guide users through security scanning by:
 1. **Asking targeted questions** to gather required information
-2. **Generating** the appropriate input.json configuration
-3. **Executing** Bridge CLI commands
+2. **Generating** the appropriate input.json configuration (for Polaris/BlackDuck/Coverity/SRM)
+3. **Executing** Bridge CLI commands OR MCP tools (for Signal)
 4. **Parsing and presenting** results in a clear, actionable format
+5. **Offering to apply fixes** (for Signal scans with security findings)
 
 ## Interaction Flow
 
@@ -30,12 +32,15 @@ Present options:
 2. **Black Duck SCA** - Software Composition Analysis only
 3. **Coverity** - Static analysis (compiled languages)
 4. **SRM** - Security Risk Management
+5. **Signal** - AI-powered security analysis (works on ANY language, finds novel bugs)
 
 Wait for user selection.
 
 ### Step 2: Determine Scan Target
 
-Ask: **"What would you like to scan?"**
+**Note:** For Signal, skip to Step 3 - Signal has its own scan mode selection (full repo/specific files/git changes).
+
+For Polaris/BlackDuck/Coverity/SRM, ask: **"What would you like to scan?"**
 
 Present options:
 1. **Current directory** - Scan the project in the current working directory
@@ -89,9 +94,41 @@ Ask for:
 - Assessment Types
 - Project Name or Project ID
 
+#### For Signal:
+**IMPORTANT:** Signal uses MCP (Model Context Protocol) tools, NOT Bridge CLI directly.
+
+Signal requires the Black Duck MCP server to be installed and configured with `BRIDGE_SIGNAL_LLM_KEY`.
+
+Ask: **"What would you like to scan with Black Duck Signal?"**
+
+Present options:
+1. **Full repo scan** - Scan all files in the repository
+2. **Specific files** - Scan one or more specific files
+3. **Git changes** - Scan uncommitted changes or changes against a reference branch
+
+**If Full repo scan:**
+- Use current directory or ask for project path
+- Optionally ask for file patterns to include (e.g., `**/*.java,**/*.py`) or scan all files
+
+**If Specific files:**
+- Ask for file path(s) - can be single file or multiple files
+- File paths must be absolute paths
+- If user provides relative path, convert to absolute using project directory
+
+**If Git changes:**
+- Ask sub-mode:
+  1. **Uncommitted changes** - Scan all uncommitted tracked files
+  2. **Reference branch** - Scan changes against a specific branch
+- If reference branch: ask for branch name (e.g., `main`, `develop`)
+- Ask: **Scan entire file content?** (default: false - only scans changed lines)
+  - false = faster, only analyzes changed lines
+  - true = comprehensive, analyzes entire modified files
+
 ### Step 4: Additional Options
 
-Ask **"Additional options?"** (all optional):
+**Note:** Skip this step for Signal - MCP handles all options automatically.
+
+For Polaris/BlackDuck/Coverity/SRM, ask **"Additional options?"** (all optional):
 - Wait for scan completion? (default: true)
 - Generate SARIF report? (default: true for non-PR scans)
 - Report file path? (default: `<stage>-results.sarif`)
@@ -155,7 +192,10 @@ node cli/generate-input.js --stage srm \
   [--directory "<path>"]
 ```
 
-Steps:
+**For Signal:**
+Signal does NOT use input.json - uses MCP tools instead. Skip to Step 7 for Signal execution.
+
+Steps (for Polaris/BlackDuck/Coverity/SRM only):
 1. Build the appropriate command with user-provided values
 2. Run the command using the Bash tool
 3. The script will output "✓ Generated <file>" and show a masked preview
@@ -207,6 +247,8 @@ If user doesn't know, suggest: **"Run the installer first: `node cli/install.js`
 
 **Note:** If remote repo was selected, it should already be cloned (from Step 2) and the directory path included in the input.json (from Step 5).
 
+#### For Polaris, BlackDuck SCA, Coverity, SRM:
+
 Run the Bridge CLI command:
 ```bash
 <bridge-cli-path> --stage <stage> --input <stage>_input.json --out <stage>_output.json
@@ -217,6 +259,43 @@ Steps:
 2. Execute using Bash tool
 3. Display output as it runs (this may take several minutes)
 4. Check exit code - if non-zero, scan failed (proceed to error handling)
+
+#### For Signal:
+
+**Signal uses MCP tools** - NOT Bridge CLI commands.
+
+**IMPORTANT:** Use the appropriate MCP tool based on scan mode:
+
+**For Full Repo Scan:**
+Use the `mcp__black-duck__run_security_scan` tool with:
+- `projectPath`: The repository root directory
+- `filePath`: Path to a representative file or main source file in the repo
+- Note: For full repo scans, you may need to scan multiple key files or use file patterns
+
+**For Specific Files:**
+Use the `mcp__black-duck__run_security_scan` tool with:
+- `projectPath`: The project directory containing the file(s)
+- `filePath`: The absolute path to the file to scan
+- If multiple files: call the tool multiple times, once per file
+
+**For Git Changes (uncommitted):**
+Use the `mcp__black-duck__run_changes_security_scan` tool with:
+- `projectPath`: The directory to scan (use current working directory or user-specified path)
+- `gitPatchMode`: "all-uncommitted"
+- `scanEntireFileContent`: false (default) or true if user requested comprehensive scan
+
+**For Git Changes (reference branch):**
+Use the `mcp__black-duck__run_changes_security_scan` tool with:
+- `projectPath`: The directory to scan
+- `gitPatchMode`: "reference-branch"
+- `referenceBranch`: The branch name (e.g., "main", "develop")
+- `scanEntireFileContent`: false (default) or true if user requested comprehensive scan
+
+Steps for Signal:
+1. Inform user that Signal scan is running via MCP
+2. Call the appropriate MCP tool based on scan mode
+3. The MCP tool will return a response with `status` and `sarifFilePath`
+4. After scan completes, read MCP resources to get detailed findings (see Step 8)
 
 ### Step 8: Parse and Present Results
 
@@ -250,6 +329,65 @@ Similar format, showing defect counts by impact (High/Medium/Low)
 
 #### For SRM:
 Show assessment results and risk scores
+
+#### For Signal:
+**Signal requires reading MCP resources** to get detailed findings.
+
+After the MCP scan tool completes successfully:
+
+1. **Read the security summary** using ReadMcpResourceTool:
+   - `server`: "black-duck"
+   - `uri`: "blackduck://security-summary"
+   - This returns the summary with issue counts by severity
+
+2. **Read individual issues** using ReadMcpResourceTool:
+   - `server`: "black-duck"
+   - `uri`: "blackduck://security-issue/{issue-id}"
+   - The issue IDs are in format: "{issue-type}-{index}" (e.g., "Relative Path Traversal-0")
+   - Get the issue IDs from the summary or iterate through them
+
+3. **Present the results** in this format:
+```
+📊 Black Duck Signal AI Scan Results
+
+Summary
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Found {count} security {warning/warnings} in {file}
+
+---
+{For each issue:}
+🔴 {Issue Title} (CVSS {score} - {Severity})
+
+Location: {file}:{line}
+
+Issue: {Brief description of the vulnerability}
+
+Data Flow:
+{Show the taint flow if available}
+
+Vulnerable Code:
+{Show the vulnerable code snippet}
+
+Risk: {Explain the security risk}
+
+CWE: {CWE number and name}
+Confidence: {High/Medium/Low} ({True Positive/False Positive likelihood})
+
+---
+Recommended Fix
+{Provide the fix recommendation with code example}
+```
+
+4. **Offer to apply fixes**:
+   - After showing each issue, ask: "Would you like me to apply this fix to {file}?"
+   - If user confirms, use Edit tool to apply the recommended fix
+
+If the scan fails or returns no results:
+- Check if MCP Black Duck server is properly configured
+- Verify `BRIDGE_SIGNAL_LLM_KEY` environment variable is set
+- Check if the project is a git repository (for git-based scans)
+- Verify file path is correct (for specific file scans)
+- Read the MCP resources even if scan reports 0 issues (to confirm clean scan)
 
 ### Step 9: Cleanup & Next Steps
 

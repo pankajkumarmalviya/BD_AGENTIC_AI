@@ -1,5 +1,7 @@
 # Installation Guide
 
+> **Note:** This guide is for the `feature/signal-integration` branch which includes Signal (AI) scan support via MCP.
+
 Complete installation instructions for Bridge CLI Skill across all supported AI assistants.
 
 ## Quick Install
@@ -7,13 +9,13 @@ Complete installation instructions for Bridge CLI Skill across all supported AI 
 ### macOS / Linux / WSL / Git Bash
 
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash
 ```
 
 ### Windows PowerShell
 
 ```powershell
-iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.ps1?v=2" | iex
 ```
 
 The installer automatically detects your installed AI assistants and configures the skill for each one.
@@ -100,7 +102,7 @@ If it doesn't work:
 - Check that the skill files are in the correct location
 - Run the installer again with `--list` flag to see detected assistants:
   ```bash
-  curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --list
+  curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash -s -- --list
   ```
 
 ## Uninstall
@@ -109,12 +111,12 @@ If it doesn't work:
 
 **macOS / Linux / WSL / Git Bash:**
 ```bash
-curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.sh?v=2" | bash -s -- --uninstall
+curl -fsSL "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.sh?v=2" | bash -s -- --uninstall
 ```
 
 **Windows PowerShell:**
 ```powershell
-iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/install.ps1?v=2" | iex -ArgumentList "--uninstall"
+iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/feature/signal-integration/install.ps1?v=2" | iex -ArgumentList "--uninstall"
 ```
 
 ### Manual Uninstall
