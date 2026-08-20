@@ -54,7 +54,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 ```
 bridge-cli-skill/
 ├── skills/
-│   └── bridge-scan/
+│   └── blackduck-init/
 │       ├── SKILL.md      # Main AI skill prompt
 │       └── README.md     # User documentation
 ├── cli/
@@ -116,7 +116,7 @@ To add a new AI assistant:
 Before submitting a PR:
 
 1. **Test installation** on your system
-2. **Test the /bridge-scan command** in at least one AI assistant
+2. **Test the /blackduck-init command** in at least one AI assistant
 3. **Test uninstallation**
 4. **Verify documentation** is accurate
 

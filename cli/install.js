@@ -42,6 +42,17 @@ function error(message) {
   log(`✗ ${message}`, colors.red);
 }
 
+function showProgress(message, percent) {
+  const barLength = 30;
+  const filled = Math.round((percent / 100) * barLength);
+  const empty = barLength - filled;
+  const bar = '█'.repeat(filled) + '░'.repeat(empty);
+  process.stdout.write(`\r${colors.cyan}${message}${colors.reset} [${bar}] ${percent}%`);
+  if (percent >= 100) {
+    process.stdout.write('\n');
+  }
+}
+
 // Bridge CLI Installation Functions
 
 function detectPlatform() {
@@ -64,7 +75,7 @@ function getBridgeCLIUrl(platformId) {
   return `${BRIDGE_CLI_BASE_URL}/${BRIDGE_CLI_VERSION}/bridge-cli-bundle-${BRIDGE_CLI_VERSION}-${platformId}.zip`;
 }
 
-function downloadFile(url, destination) {
+function downloadFile(url, destination, silent = false) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(destination);
 
@@ -73,7 +84,7 @@ function downloadFile(url, destination) {
         // Handle redirect
         file.close();
         fs.unlinkSync(destination);
-        return downloadFile(response.headers.location, destination)
+        return downloadFile(response.headers.location, destination, silent)
           .then(resolve)
           .catch(reject);
       }
@@ -89,15 +100,23 @@ function downloadFile(url, destination) {
 
       response.on('data', (chunk) => {
         downloaded += chunk.length;
-        const percent = ((downloaded / totalSize) * 100).toFixed(1);
-        process.stdout.write(`\r  Downloading: ${percent}%`);
+        if (!silent) {
+          const percent = Math.floor((downloaded / totalSize) * 100);
+          const barLength = 30;
+          const filled = Math.round((percent / 100) * barLength);
+          const empty = barLength - filled;
+          const bar = '█'.repeat(filled) + '░'.repeat(empty);
+          process.stdout.write(`\r${colors.cyan}Downloading Bridge CLI${colors.reset} [${bar}] ${percent}%`);
+        }
       });
 
       response.pipe(file);
 
       file.on('finish', () => {
         file.close();
-        process.stdout.write('\n');
+        if (!silent) {
+          process.stdout.write('\n');
+        }
         resolve();
       });
     }).on('error', (err) => {
@@ -115,8 +134,8 @@ async function extractArchive(archivePath, extractDir) {
   if (isWindows) {
     await execAsync(`powershell -command "Expand-Archive -Path '${archivePath}' -DestinationPath '${extractDir}' -Force"`);
   } else {
-    // macOS/Linux - use unzip (removed -q flag to show progress)
-    await execAsync(`unzip "${archivePath}" -d "${extractDir}"`);
+    // macOS/Linux - use unzip with -q (quiet) flag
+    await execAsync(`unzip -q "${archivePath}" -d "${extractDir}"`);
   }
 }
 
@@ -171,34 +190,34 @@ function compareVersions(current, latest) {
 }
 
 async function installBridgeCLI(force = false) {
-  log('\n🔧 Installing Bridge CLI\n', colors.cyan);
+  // log('\n🔧 Installing Bridge CLI\n', colors.cyan);
 
   // Check if already installed
   const existingVersionString = await checkBridgeCLIInstalled();
 
   if (existingVersionString && !force) {
-    const existingVersion = parseVersion(existingVersionString);
-    const latestVersion = BRIDGE_CLI_VERSION;
+    // const existingVersion = parseVersion(existingVersionString);
+    // const latestVersion = BRIDGE_CLI_VERSION;
 
-    success(`Bridge CLI already installed: ${existingVersionString}`);
+    // success(`Bridge CLI already installed: ${existingVersionString}`);
 
-    if (existingVersion && latestVersion) {
-      const comparison = compareVersions(existingVersion, latestVersion);
+    // if (existingVersion && latestVersion) {
+    //   const comparison = compareVersions(existingVersion, latestVersion);
 
-      if (comparison < 0) {
-        warn(`\n⚠️  Newer version available: ${latestVersion}`);
-        info('To update Bridge CLI, run:');
-        info('  node cli/install.js --update-bridge-cli');
-        info('\nOr manually download from:');
-        info('  https://artifactory.tools.duckutil.net/artifactory/clops-local/integrations/bridge/binaries/bridge-cli-bundle/\n');
-      } else if (comparison === 0) {
-        success('You have the latest version!\n');
-      } else {
-        info(`You have a newer version (${existingVersion}) than bundled (${latestVersion})\n`);
-      }
-    }
+    //   if (comparison < 0) {
+    //     warn(`\n⚠️  Newer version available: ${latestVersion}`);
+    //     info('To update Bridge CLI, run:');
+    //     info('  node cli/install.js --update-bridge-cli');
+    //     info('\nOr manually download from:');
+    //     info('  https://artifactory.tools.duckutil.net/artifactory/clops-local/integrations/bridge/binaries/bridge-cli-bundle/\n');
+    //   } else if (comparison === 0) {
+    //     success('You have the latest version!\n');
+    //   } else {
+    //     info(`You have a newer version (${existingVersion}) than bundled (${latestVersion})\n`);
+    //   }
+    // }
 
-    info('Skipping Bridge CLI installation\n');
+    // Already installed, skip to 80%
     return;
   }
 
@@ -210,11 +229,11 @@ async function installBridgeCLI(force = false) {
   try {
     // Detect platform
     const platformId = detectPlatform();
-    info(`Detected platform: ${platformId}`);
+    // info(`Detected platform: ${platformId}`);
 
     // Get download URL
     const downloadUrl = getBridgeCLIUrl(platformId);
-    info(`Download URL: ${downloadUrl}\n`);
+    // info(`Download URL: ${downloadUrl}\n`);
 
     // Create temp directory
     const tempDir = path.join(os.tmpdir(), 'bridge-cli-install');
@@ -226,9 +245,7 @@ async function installBridgeCLI(force = false) {
     const archiveName = path.basename(downloadUrl);
     const archivePath = path.join(tempDir, archiveName);
 
-    info('Downloading Bridge CLI...');
-    await downloadFile(downloadUrl, archivePath);
-    success('Download complete');
+    await downloadFile(downloadUrl, archivePath, false); // false = show download progress
 
     // Determine installation path
     const installPath = getBridgeCLIInstallPath();
@@ -237,9 +254,9 @@ async function installBridgeCLI(force = false) {
     }
 
     // Extract directly to installation directory
-    info('Extracting Bridge CLI bundle...');
+    process.stdout.write(`\n${colors.cyan}Extracting Bridge CLI...${colors.reset}`);
     await extractArchive(archivePath, installPath);
-    success('Extraction complete');
+    process.stdout.write(` ✓\n`);
 
     // Find the extracted bundle directory
     const files = fs.readdirSync(installPath);
@@ -258,19 +275,19 @@ async function installBridgeCLI(force = false) {
       fs.chmodSync(finalBinaryPath, 0o755);
     }
 
-    success(`Bridge CLI bundle installed to: ${finalBundlePath}`);
-    success(`Bridge CLI binary: ${finalBinaryPath}`);
+    // success(`Bridge CLI bundle installed to: ${finalBundlePath}`);
+    // success(`Bridge CLI binary: ${finalBinaryPath}`);
 
     // Add to PATH recommendation
-    if (!installPath.includes('/usr/local/bin')) {
-      warn('\nIMPORTANT: Add Bridge CLI to your PATH:');
-      if (os.platform() === 'win32') {
-        info(`  Add "${finalBundlePath}" to your system PATH environment variable`);
-      } else {
-        info(`  echo 'export PATH="${finalBundlePath}:$PATH"' >> ~/.bashrc`);
-        info(`  echo 'export PATH="${finalBundlePath}:$PATH"' >> ~/.zshrc`);
-      }
-    }
+    // if (!installPath.includes('/usr/local/bin')) {
+    //   warn('\nIMPORTANT: Add Bridge CLI to your PATH:');
+    //   if (os.platform() === 'win32') {
+    //     info(`  Add "${finalBundlePath}" to your system PATH environment variable`);
+    //   } else {
+    //     info(`  echo 'export PATH="${finalBundlePath}:$PATH"' >> ~/.bashrc`);
+    //     info(`  echo 'export PATH="${finalBundlePath}:$PATH"' >> ~/.zshrc`);
+    //   }
+    // }
 
     // Also copy entire bundle to repository root for local usage
     const repoRoot = path.join(__dirname, '..');
@@ -291,9 +308,9 @@ async function installBridgeCLI(force = false) {
         fs.chmodSync(repoBinaryPath, 0o755);
       }
 
-      success(`Bridge CLI bundle also copied to repository root: ${repoBundlePath}`);
+      // success(`Bridge CLI bundle also copied to repository root: ${repoBundlePath}`);
     } catch (copyErr) {
-      warn(`Could not copy to repository root: ${copyErr.message}`);
+      // warn(`Could not copy to repository root: ${copyErr.message}`);
     }
 
     // Cleanup
@@ -395,13 +412,13 @@ async function detectInstalledAgents() {
 function getSkillPath() {
   // Determine path to skills directory
   const scriptDir = __dirname;
-  return path.join(scriptDir, '..', 'skills', 'bridge-scan');
+  return path.join(scriptDir, '..', 'skills', 'blackduck-init');
 }
 
 async function installForClaudeCode(skillPath) {
   const claudeDir = path.join(os.homedir(), '.claude');
   const skillsDir = path.join(claudeDir, 'skills');
-  const targetDir = path.join(skillsDir, 'bridge-scan');
+  const targetDir = path.join(skillsDir, 'blackduck-init');
 
   // Create skills directory if it doesn't exist
   if (!fs.existsSync(skillsDir)) {
@@ -417,7 +434,7 @@ async function installForClaudeCode(skillPath) {
 async function installForCodex(skillPath) {
   const codexDir = path.join(os.homedir(), '.codex');
   const skillsDir = path.join(codexDir, 'skills');
-  const targetDir = path.join(skillsDir, 'bridge-scan');
+  const targetDir = path.join(skillsDir, 'blackduck-init');
 
   if (!fs.existsSync(skillsDir)) {
     fs.mkdirSync(skillsDir, { recursive: true });
@@ -467,14 +484,12 @@ function copyDirectory(source, target) {
 }
 
 async function install() {
-  log('\n🔧 Bridge CLI Skill Installer\n', colors.cyan);
+  log('', ''); // blank line
 
   // Step 1: Install Bridge CLI binary
   await installBridgeCLI();
 
   // Step 2: Detect and install skill for AI assistants
-  info('Detecting installed AI assistants...\n');
-
   const installedAgents = await detectInstalledAgents();
 
   if (installedAgents.length === 0) {
@@ -484,12 +499,6 @@ async function install() {
     return;
   }
 
-  log(`Found ${installedAgents.length} AI assistant(s):\n`, colors.green);
-  installedAgents.forEach(agent => {
-    log(`  • ${agent.label}`, colors.green);
-  });
-  log('');
-
   const skillPath = getSkillPath();
 
   if (!fs.existsSync(skillPath)) {
@@ -498,7 +507,7 @@ async function install() {
     process.exit(1);
   }
 
-  info('Installing Bridge CLI skill...\n');
+  process.stdout.write(`${colors.cyan}Installing skill...${colors.reset}`);
 
   for (const agent of installedAgents) {
     try {
@@ -514,9 +523,8 @@ async function install() {
     }
   }
 
-  log('\n✨ Installation complete!\n', colors.green);
-  log('Usage:', colors.cyan);
-  log('  Type /bridge-scan in any AI assistant to start\n');
+  process.stdout.write(` ✓\n`);
+  log('\n✅ Installation complete! Use /blackduck-init to start\n', colors.green);
 }
 
 async function uninstall() {
@@ -528,13 +536,13 @@ async function uninstall() {
   for (const agent of installedAgents) {
     try {
       if (agent.id === 'claude-code') {
-        const targetDir = path.join(os.homedir(), '.claude', 'skills', 'bridge-scan');
+        const targetDir = path.join(os.homedir(), '.claude', 'skills', 'blackduck-init');
         if (fs.existsSync(targetDir)) {
           fs.rmSync(targetDir, { recursive: true });
           success(`Removed from Claude Code`);
         }
       } else if (agent.id === 'codex') {
-        const targetDir = path.join(os.homedir(), '.codex', 'skills', 'bridge-scan');
+        const targetDir = path.join(os.homedir(), '.codex', 'skills', 'blackduck-init');
         if (fs.existsSync(targetDir)) {
           fs.rmSync(targetDir, { recursive: true });
           success(`Removed from Codex`);

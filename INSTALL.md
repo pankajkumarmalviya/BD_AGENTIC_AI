@@ -50,49 +50,49 @@ If the automatic installer doesn't work for your AI assistant, you can manually 
 ### For Claude Code
 
 1. Clone this repository or download the skill files
-2. Copy the `skills/bridge-scan` directory to `~/.claude/skills/bridge-scan`
+2. Copy the `skills/blackduck-init` directory to `~/.claude/skills/blackduck-init`
 3. Restart Claude Code
 
 ### For Cursor
 
-1. Run: `npx skills add path/to/bridge-cli-skill/skills/bridge-scan/SKILL.md -a cursor`
+1. Run: `npx skills add path/to/bridge-cli-skill/skills/blackduck-init/SKILL.md -a cursor`
 2. Restart Cursor
 
 ### For Windsurf
 
-1. Run: `npx skills add path/to/bridge-cli-skill/skills/bridge-scan/SKILL.md -a windsurf`
+1. Run: `npx skills add path/to/bridge-cli-skill/skills/blackduck-init/SKILL.md -a windsurf`
 2. Restart Windsurf
 
 ### For Cline
 
-1. Run: `npx skills add path/to/bridge-cli-skill/skills/bridge-scan/SKILL.md -a cline`
+1. Run: `npx skills add path/to/bridge-cli-skill/skills/blackduck-init/SKILL.md -a cline`
 2. Restart your IDE
 
 ### For GitHub Copilot
 
-1. Run: `npx skills add path/to/bridge-cli-skill/skills/bridge-scan/SKILL.md -a github-copilot`
+1. Run: `npx skills add path/to/bridge-cli-skill/skills/blackduck-init/SKILL.md -a github-copilot`
 2. Restart VS Code
 
 ### For Codex
 
-1. Copy the `skills/bridge-scan` directory to `~/.codex/skills/bridge-scan`
+1. Copy the `skills/blackduck-init` directory to `~/.codex/skills/blackduck-init`
 2. Restart Codex
 
 ### For Gemini CLI
 
-1. Copy `skills/bridge-scan/SKILL.md` to your Gemini CLI context directory
+1. Copy `skills/blackduck-init/SKILL.md` to your Gemini CLI context directory
 2. Configure Gemini to load the skill file
 
 ### For Other AI Assistants
 
-Most AI assistants support loading skills via markdown files. Consult your AI assistant's documentation for how to add custom skills, then reference the `skills/bridge-scan/SKILL.md` file.
+Most AI assistants support loading skills via markdown files. Consult your AI assistant's documentation for how to add custom skills, then reference the `skills/blackduck-init/SKILL.md` file.
 
 ## Verification
 
 After installation, verify the skill is available:
 
 1. Open your AI assistant
-2. Type `/bridge-scan`
+2. Type `/blackduck-init`
 3. The assistant should start the interactive Bridge CLI setup flow
 
 If it doesn't work:
@@ -121,8 +121,8 @@ iwr "https://raw.githubusercontent.com/pankajkumarmalviya/BD_AGENTIC_AI/master/i
 
 Remove the skill directory from your AI assistant's configuration:
 
-- **Claude Code**: `rm -rf ~/.claude/skills/bridge-scan`
-- **Codex**: `rm -rf ~/.codex/skills/bridge-scan`
+- **Claude Code**: `rm -rf ~/.claude/skills/blackduck-init`
+- **Codex**: `rm -rf ~/.codex/skills/blackduck-init`
 - **Others**: Use `npx skills remove` or manually delete the skill file
 
 ## Troubleshooting
@@ -147,7 +147,7 @@ chmod +x install.sh
 
 1. Restart your AI assistant completely
 2. Check the skill was copied to the correct directory
-3. For Claude Code, check `~/.claude/skills/bridge-scan/SKILL.md` exists
+3. For Claude Code, check `~/.claude/skills/blackduck-init/SKILL.md` exists
 4. For other assistants, verify via their skill management interface
 
 ### "Bridge CLI not found" when running scan
@@ -166,7 +166,7 @@ The skill requires Bridge CLI to be installed on your system:
 ## Next Steps
 
 After installation:
-1. Type `/bridge-scan` in your AI assistant
+1. Type `/blackduck-init` in your AI assistant
 2. Follow the interactive prompts
 3. Have your security platform credentials ready
 4. Enjoy automated security scanning!

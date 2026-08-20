@@ -4,7 +4,7 @@ One command. Security scans everywhere. Bridge CLI integration for 30+ AI coding
 
 ## What You Get
 
-Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gemini CLI, and 25+ more AI assistants. Type `/bridge-scan` → get interactive security scanning with Polaris, Black Duck SCA, Coverity, or SRM. No JSON config memorization. No manual Bridge CLI setup. Just answer questions, get results.
+Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gemini CLI, and 25+ more AI assistants. Type `/blackduck-init` → get interactive security scanning with Polaris, Black Duck SCA, Coverity, or SRM. No JSON config memorization. No manual Bridge CLI setup. Just answer questions, get results.
 
 ### Before
 
@@ -19,7 +19,7 @@ Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gem
 ### After
 
 ```
-/bridge-scan
+/blackduck-init
 
 Which security scan? → Polaris
 Scan what? → Current directory
@@ -64,7 +64,7 @@ No manual downloads. No PATH setup (well, maybe). Just run and scan.
 | Copilot | ✅ Full | Yes |
 | Gemini CLI | ✅ Full | Yes |
 | Codex | ✅ Full | Yes |
-| 25+ others | ✅ Full | Via `/bridge-scan` command |
+| 25+ others | ✅ Full | Via `/blackduck-init` command |
 
 See [INSTALL.md](INSTALL.md) for per-agent details.
 
@@ -92,10 +92,10 @@ Bridge scanner skill = interactive Bridge CLI wrapper. Asks questions. Builds JS
 
 ## Usage
 
-After install, type `/bridge-scan` in any supported AI assistant:
+After install, type `/blackduck-init` in any supported AI assistant:
 
 ```
-You: /bridge-scan
+You: /blackduck-init
 
 AI guides you through:
 1. Select scan type (Polaris/BlackDuck/Coverity/SRM/Signal)
@@ -121,7 +121,7 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 ### Polaris SCA Scan
 
 ```
-/bridge-scan
+/blackduck-init
 → Polaris
 → Current directory
 → Server: https://poc.polaris.blackduck.com
@@ -133,7 +133,7 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 ### Black Duck Scan on Remote Repo
 
 ```
-/bridge-scan
+/blackduck-init
 → Black Duck SCA
 → Remote repository
 → Repo: https://github.com/user/project
@@ -145,7 +145,7 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 ### Coverity on Compiled Project
 
 ```
-/bridge-scan
+/blackduck-init
 → Coverity
 → Current directory
 → URL: https://coverity.example.com
@@ -159,7 +159,7 @@ That's it. Installer handles Bridge CLI download and installation automatically.
 ```
 # Prerequisites: Black Duck MCP server installed + BRIDGE_SIGNAL_LLM_KEY set
 
-/bridge-scan
+/blackduck-init
 → Signal
 → What to scan? Specific files
 → File path: src/SecurityScanner.java
@@ -202,7 +202,7 @@ Bridge scanner no phone home. No telemetry. No accounts. No backend. All local. 
 ## Documentation
 
 - [Installation Guide](INSTALL.md) - Per-agent install instructions
-- [Skill README](skills/bridge-scan/README.md) - How the skill works
+- [Skill README](skills/blackduck-init/README.md) - How the skill works
 - [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/master/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
 
 ## Contributing

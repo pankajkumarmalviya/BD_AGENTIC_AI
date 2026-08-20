@@ -25,6 +25,9 @@ coverage/
 .env
 .env.local
 
+# Credentials are now stored in ~/credentials.json (user home directory)
+# No need to gitignore since they're outside the repo
+
 # Temporary files
 tmp/
 temp/

@@ -4,7 +4,7 @@ Interactive AI assistant skill for running Bridge CLI security scans across Pola
 
 ## What It Does
 
-When you type `/bridge-scan` in your AI assistant, this skill:
+When you type `/blackduck-init` in your AI assistant, this skill:
 
 1. **Guides you through** an interactive question flow to collect scan configuration
 2. **Generates** the appropriate `input.json` file automatically
@@ -31,7 +31,7 @@ When you type `/bridge-scan` in your AI assistant, this skill:
 ## Example Usage
 
 ```
-You: /bridge-scan
+You: /blackduck-init
 
 AI: Which security scan would you like to run?
     1. Polaris - SAST/SCA analysis

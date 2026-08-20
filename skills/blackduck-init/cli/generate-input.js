@@ -9,6 +9,149 @@
 
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+
+// Path to credentials file directly in user's home directory
+const CREDENTIALS_FILE = path.join(os.homedir(), 'credentials.json');
+
+// Load credentials from file
+function loadCredentials() {
+  try {
+    if (fs.existsSync(CREDENTIALS_FILE)) {
+      const content = fs.readFileSync(CREDENTIALS_FILE, 'utf8');
+      const creds = JSON.parse(content);
+      return creds;
+    }
+  } catch (error) {
+    console.error(`Warning: Could not load credentials: ${error.message}`);
+  }
+  return null;
+}
+
+// Save configuration (credentials + assessment types/scan settings) to file
+// NOTE: Project/application names and branch names are NOT stored - they are auto-detected from directory/git
+function saveCredentials(stage, params) {
+  try {
+    let creds = loadCredentials() || {
+      lastUsedScanType: "",
+      polaris: { serverUrl: "", accessToken: "", assessmentTypes: [] },
+      blackducksca: { url: "", token: "", scanType: "" },
+      coverity: { url: "", username: "", password: "", streamName: "", buildCommand: "", cleanCommand: "" },
+      srm: { url: "", apiKey: "", assessmentTypes: [] }
+    };
+
+    // Save the last used scan type
+    creds.lastUsedScanType = stage;
+
+    switch (stage) {
+      case 'polaris':
+        creds.polaris = {
+          serverUrl: params['server-url'],
+          accessToken: params['access-token'] || params.token,
+          assessmentTypes: params['assessment-types'] ? params['assessment-types'].split(',') : []
+        };
+        break;
+      case 'blackducksca':
+        creds.blackducksca = {
+          url: params['server-url'],
+          token: params.token || params['api-token'],
+          scanType: params['full-scan'] === 'true' ? 'full' : 'incremental'
+        };
+        break;
+      case 'coverity':
+        creds.coverity = {
+          url: params['server-url'],
+          username: params.username,
+          password: params.password,
+          streamName: params['stream-name'] || "",
+          buildCommand: params['build-command'] || "",
+          cleanCommand: params['clean-command'] || ""
+        };
+        break;
+      case 'srm':
+        creds.srm = {
+          url: params['server-url'],
+          apiKey: params['api-key'] || params.apikey,
+          assessmentTypes: params['assessment-types'] ? params['assessment-types'].split(',') : []
+        };
+        break;
+    }
+
+    fs.writeFileSync(CREDENTIALS_FILE, JSON.stringify(creds, null, 2));
+    console.log(`✓ Configuration saved to ${CREDENTIALS_FILE}`);
+    return true;
+  } catch (error) {
+    console.error(`Warning: Could not save configuration: ${error.message}`);
+    return false;
+  }
+}
+
+// Merge configuration (credentials + settings) from file into params
+// NOTE: Project/application names and branch names are NOT merged - they are auto-detected from directory/git
+function mergeCredentials(stage, params) {
+  const creds = loadCredentials();
+  if (!creds) return params;
+
+  const merged = { ...params };
+
+  switch (stage) {
+    case 'polaris':
+      if (creds.polaris?.serverUrl && !merged['server-url']) {
+        merged['server-url'] = creds.polaris.serverUrl;
+      }
+      if (creds.polaris?.accessToken && !merged['access-token'] && !merged.token) {
+        merged['access-token'] = creds.polaris.accessToken;
+      }
+      if (creds.polaris?.assessmentTypes && creds.polaris.assessmentTypes.length > 0 && !merged['assessment-types']) {
+        merged['assessment-types'] = creds.polaris.assessmentTypes.join(',');
+      }
+      break;
+    case 'blackducksca':
+      if (creds.blackducksca?.url && !merged['server-url']) {
+        merged['server-url'] = creds.blackducksca.url;
+      }
+      if (creds.blackducksca?.token && !merged.token && !merged['api-token']) {
+        merged.token = creds.blackducksca.token;
+      }
+      if (creds.blackducksca?.scanType && !merged['full-scan']) {
+        merged['full-scan'] = creds.blackducksca.scanType === 'full' ? 'true' : 'false';
+      }
+      break;
+    case 'coverity':
+      if (creds.coverity?.url && !merged['server-url']) {
+        merged['server-url'] = creds.coverity.url;
+      }
+      if (creds.coverity?.username && !merged.username) {
+        merged.username = creds.coverity.username;
+      }
+      if (creds.coverity?.password && !merged.password) {
+        merged.password = creds.coverity.password;
+      }
+      if (creds.coverity?.streamName && !merged['stream-name']) {
+        merged['stream-name'] = creds.coverity.streamName;
+      }
+      if (creds.coverity?.buildCommand && !merged['build-command']) {
+        merged['build-command'] = creds.coverity.buildCommand;
+      }
+      if (creds.coverity?.cleanCommand && !merged['clean-command']) {
+        merged['clean-command'] = creds.coverity.cleanCommand;
+      }
+      break;
+    case 'srm':
+      if (creds.srm?.url && !merged['server-url']) {
+        merged['server-url'] = creds.srm.url;
+      }
+      if (creds.srm?.apiKey && !merged['api-key'] && !merged.apikey) {
+        merged['api-key'] = creds.srm.apiKey;
+      }
+      if (creds.srm?.assessmentTypes && creds.srm.assessmentTypes.length > 0 && !merged['assessment-types']) {
+        merged['assessment-types'] = creds.srm.assessmentTypes.join(',');
+      }
+      break;
+  }
+
+  return merged;
+}
 
 // Parse command line arguments
 function parseArgs() {
@@ -49,7 +192,7 @@ function generatePolarisInput(params) {
       },
       bridge: {
         invoked: {
-          from: 'bridge-cli-skill'
+          from: 'blackduck-init'
         }
       }
     }
@@ -71,6 +214,26 @@ function generatePolarisInput(params) {
     input.data.polaris.waitForScan = true;
   }
 
+  // SCA configuration
+  if (params['sca-type']) {
+    if (!input.data.polaris.test) input.data.polaris.test = {};
+    if (!input.data.polaris.test.sca) input.data.polaris.test.sca = {};
+    input.data.polaris.test.sca.type = params['sca-type'];
+  }
+  if (params['sca-location']) {
+    if (!input.data.polaris.test) input.data.polaris.test = {};
+    if (!input.data.polaris.test.sca) input.data.polaris.test.sca = {};
+    input.data.polaris.test.sca.location = params['sca-location'];
+  }
+
+  // SAST configuration
+  if (params['sast-type']) {
+    if (!input.data.polaris.test) input.data.polaris.test = {};
+    if (!input.data.polaris.test.sast) input.data.polaris.test.sast = {};
+    input.data.polaris.test.sast.type = params['sast-type'];
+  }
+
+  // SARIF report configuration
   if (params['sarif-report'] === 'true') {
     input.data.polaris.reports = {
       sarif: {
@@ -80,6 +243,29 @@ function generatePolarisInput(params) {
         }
       }
     };
+
+    // Additional SARIF options
+    if (params['sarif-group-sca-issues'] === 'true') {
+      input.data.polaris.reports.sarif.groupSCAIssues = true;
+    }
+    if (params['sarif-severities']) {
+      input.data.polaris.reports.sarif.severities = params['sarif-severities'].split(',');
+    }
+    if (params['sarif-issue-types']) {
+      input.data.polaris.reports.sarif.issue = {
+        types: params['sarif-issue-types'].split(',')
+      };
+    }
+  }
+
+  // PR comment configuration
+  if (params['pr-comment-enabled'] === 'true') {
+    input.data.polaris.prComment = {
+      enabled: true
+    };
+    if (params['pr-comment-severities']) {
+      input.data.polaris.prComment.severities = params['pr-comment-severities'].split(',');
+    }
   }
 
   return input;
@@ -98,7 +284,7 @@ function generateBlackDuckInput(params) {
       },
       bridge: {
         invoked: {
-          from: 'bridge-cli-skill'
+          from: 'blackduck-init'
         }
       }
     }
@@ -153,7 +339,7 @@ function generateCoverityInput(params) {
       },
       bridge: {
         invoked: {
-          from: 'bridge-cli-skill'
+          from: 'blackduck-init'
         }
       }
     }
@@ -195,7 +381,7 @@ function generateSRMInput(params) {
       },
       bridge: {
         invoked: {
-          from: 'bridge-cli-skill'
+          from: 'blackduck-init'
         }
       }
     }
@@ -271,7 +457,7 @@ function validateParams(stage, params) {
 
 // Main
 function main() {
-  const params = parseArgs();
+  let params = parseArgs();
   const stage = params.stage;
 
   if (!stage || params.help) {
@@ -295,6 +481,8 @@ Common Options:
   --wait-for-scan           Wait for scan completion
   --sarif-report            Generate SARIF report
   --sarif-path <file>       SARIF report path
+  --save-credentials        Save credentials to credentials.json (auto-saves on first use)
+  --load-credentials false  Disable loading credentials from file (default: true)
 
 Polaris Options:
   --server-url <url>        Polaris server URL (required)
@@ -339,6 +527,11 @@ Example:
     process.exit(params.help ? 0 : 1);
   }
 
+  // Merge credentials from file (if not disabled and credentials exist)
+  if (params['load-credentials'] !== 'false') {
+    params = mergeCredentials(stage, params);
+  }
+
   // Validate
   const errors = validateParams(stage, params);
   if (errors.length > 0) {
@@ -372,6 +565,12 @@ Example:
   fs.writeFileSync(outputFile, JSON.stringify(inputJson, null, 2));
 
   console.log(`✓ Generated ${outputFile}`);
+
+  // Save credentials (always save unless explicitly disabled)
+  if (params['save-credentials'] !== 'false') {
+    saveCredentials(stage, params);
+  }
+
   console.log(`\nPreview (credentials masked):`);
 
   // Show masked preview

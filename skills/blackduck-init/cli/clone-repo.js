@@ -90,7 +90,7 @@ Usage:
 
 Options:
   --url <url>           GitHub repository URL (required)
-  --destination <path>  Clone destination (default: /tmp/<repo-name>-bridge-scan)
+  --destination <path>  Clone destination (default: /tmp/<repo-name>-blackduck-init)
   --branch <name>       Specific branch to clone
   --depth <n>           Clone depth (shallow clone)
 
@@ -112,7 +112,7 @@ Examples:
 
   const url = params.url;
   const repoName = getRepoName(url);
-  const destination = params.destination || path.join(os.tmpdir(), `${repoName}-bridge-scan`);
+  const destination = params.destination || path.join(os.tmpdir(), `${repoName}-blackduck-init`);
 
   try {
     let cloneCommand = `git clone`;

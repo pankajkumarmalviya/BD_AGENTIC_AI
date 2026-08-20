@@ -12,7 +12,7 @@ Think of it as: **"Tell your AI to scan for security issues, and it does everyth
 
 Instead of remembering complex security scan commands, you just type:
 ```
-/bridge-scan
+/blackduck-init
 ```
 
 Your AI assistant then:
@@ -75,10 +75,10 @@ The skill is a set of instructions that teaches your AI assistant how to:
 **What the installer does:**
 - Detects which AI assistants you have installed (Claude Code, Cursor, Windsurf, etc.)
 - Copies skill files to each assistant's skills directory:
-  - **Claude Code:** `~/.claude/skills/bridge-scan/`
-  - **Cursor:** `~/.cursor-tutor/skills/bridge-scan/`
-  - **Windsurf:** `~/.codeium/windsurf/skills/bridge-scan/`
-  - **Cline:** `~/.continue/skills/bridge-scan/`
+  - **Claude Code:** `~/.claude/skills/blackduck-init/`
+  - **Cursor:** `~/.cursor-tutor/skills/blackduck-init/`
+  - **Windsurf:** `~/.codeium/windsurf/skills/blackduck-init/`
+  - **Cline:** `~/.continue/skills/blackduck-init/`
 
 **What's in the skill folder?**
 - `SKILL.md` - Instructions for the AI on how to run scans
@@ -93,9 +93,9 @@ After installation, here's where everything lives:
 | What | Where | Size |
 |------|-------|------|
 | Bridge CLI binary | `~/bridge-cli/bridge-cli-bundle-X.X.X-<platform>/bridge-cli` | ~100MB |
-| Skill files (Claude Code) | `~/.claude/skills/bridge-scan/` | ~200KB |
-| Skill files (Cursor) | `~/.cursor-tutor/skills/bridge-scan/` | ~200KB |
-| Skill files (Windsurf) | `~/.codeium/windsurf/skills/bridge-scan/` | ~200KB |
+| Skill files (Claude Code) | `~/.claude/skills/blackduck-init/` | ~200KB |
+| Skill files (Cursor) | `~/.cursor-tutor/skills/blackduck-init/` | ~200KB |
+| Skill files (Windsurf) | `~/.codeium/windsurf/skills/blackduck-init/` | ~200KB |
 
 **Important:**
 - The installer does NOT modify your shell configuration (.bashrc, .zshrc)
@@ -107,7 +107,7 @@ After installation, here's where everything lives:
 ## How to Use It
 
 1. **Open your AI coding assistant** (Claude Code, Cursor, etc.)
-2. **Type:** `/bridge-scan`
+2. **Type:** `/blackduck-init`
 3. **Answer the questions:**
    - Which scan? (Polaris, Black Duck, etc.)
    - Which project folder?
@@ -118,7 +118,7 @@ After installation, here's where everything lives:
 ### Example Conversation
 
 ```
-You: /bridge-scan
+You: /blackduck-init
 
 AI: Which security scan would you like to run?
     1. Polaris
