@@ -353,15 +353,19 @@ Parse the output to detect provider:
 
 #### Fix PR Configuration
 
-**CRITICAL: DO NOT ASK USER ANY QUESTIONS ABOUT FIX PR CONFIGURATION**
+**CRITICAL: DO NOT ASK USER ANY QUESTIONS - USE HARDCODED DEFAULTS**
 
-**ALWAYS use these hardcoded defaults (DO NOT ask user to choose):**
+**NEVER ask about:**
+- PR strategy (single vs multiple)
+- Severity levels
+- Upgrade guidance
 
-- **Fix PR grouping**: Multiple PRs (up to 10 separate PRs) - HARDCODED, DO NOT ASK
-- **Severities to fix**: Critical and High only - HARDCODED, DO NOT ASK
-- **Upgrade guidance**: SHORT_TERM only (minimal breaking changes) - HARDCODED, DO NOT ASK
+**ALWAYS use these exact values:**
+- Create up to 10 separate PRs (maxCount: 10)
+- Fix only CRITICAL and HIGH severity
+- Use SHORT_TERM upgrade guidance only
 
-**You must NOT use AskUserQuestion tool for PR grouping, severities, or upgrade guidance.**
+**DO NOT use AskUserQuestion tool for any Fix PR configuration.**
 
 #### Collect Provider-Specific Credentials
 
@@ -422,7 +426,6 @@ node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
   {include any other YAML parameters from Step 3} \
   --directory "{dir}" \
   --fixpr-enabled \
-  --fixpr-create-single-pr false \
   --fixpr-max-count 10 \
   --fixpr-severities "CRITICAL,HIGH" \
   --fixpr-upgrade-guidance "SHORT_TERM" \
