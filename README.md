@@ -4,7 +4,7 @@ One command. Security scans everywhere. Bridge CLI integration for 30+ AI coding
 
 ## What You Get
 
-Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gemini CLI, and 25+ more AI assistants with **5 specialized skills**. Type `/blackduck-init` for multi-scanner workflows, or use dedicated skills (`/blackduck-polaris`, `/blackduck-sca`) for streamlined single-scanner projects. Complete remediation workflow included (`/blackduck-remediate`, `/blackduck-triage`). No JSON config memorization. No manual Bridge CLI setup. Just answer questions, get results.
+Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gemini CLI, and 25+ more AI assistants with **6 specialized skills**. Type `/blackduck-init` for multi-scanner workflows, or use dedicated skills (`/blackduck-polaris`, `/blackduck-sca`) for streamlined single-scanner projects. Complete remediation workflow included (`/blackduck-remediate`, `/blackduck-triage`). No JSON config memorization. No manual Bridge CLI setup. Just answer questions, get results.
 
 ### Before
 
@@ -70,15 +70,14 @@ See [INSTALL.md](INSTALL.md) for per-agent details.
 
 ## What It Does
 
-Five skills for complete security workflow:
+Six skills for complete security workflow:
 
 **1. `/blackduck-init`** - Interactive Bridge CLI wrapper
 - Asks questions, builds JSON, runs scans, shows results
 - Supports Polaris, Black Duck SCA, Coverity, and SRM
 - Auto-detects configuration from existing YAML files (GitHub Actions, GitLab CI, Azure DevOps, etc.)
 - Stores credentials for future scans
-- Optional Fix PR automation via Bridge CLI
-
+- Fix PR automation via Bridge CLI (defaults: multiple PRs, Critical+High, short-term upgrades)
 **2. `/blackduck-polaris`** - Dedicated Polaris scanner
 - Streamlined workflow - always runs Polaris SAST+SCA
 - Skips scan type selection for faster execution
@@ -98,10 +97,12 @@ Five skills for complete security workflow:
 
 **5. `/blackduck-triage`** - Automated fixer
 - Applies fixes to code based on remediation guidance
-- Creates new branch with random ID (`blackduck-fixes-{id}`)
-- Fixes issues iteratively (user confirms each)
-- Commits, pushes, and creates PR automatically
-- Offers to re-scan to verify fixes
+
+**6. `/blackduck-reverify`** - PR branch scanner
+- Reruns scans on fix PR branches to verify fixes worked
+- Uses GitHub API to find PR branches automatically
+- Reuses previous scan configuration with updated branch names
+- Shows comparison with original scan results
 
 ### Complete Workflow
 

@@ -351,33 +351,20 @@ Parse the output to detect provider:
 - If contains `gitlab.com` → GitLab
 - If `NO_REMOTE` → Show error: "⚠️ No git remote found. Fix PR requires a remote repository (GitHub, Azure, or GitLab)."
 
-#### Ask Fix PR Configuration
+#### Fix PR Configuration
 
-**Ask user using AskUserQuestion:**
+**Use default configuration (no questions):**
 
-**Question 1:** "How should fixes be grouped?"
-- **Create single PR with all fixes** (Recommended)
-- **Create separate PRs** (up to 10)
-
-**Question 2:** "Which severities should be fixed?"
-- **Critical and High only** (Recommended)
-- **Critical, High, and Medium**
-- **All severities**
-
-**Question 3:** "Which upgrade guidance to apply?"
-- **SHORT_TERM only** (Recommended - minimal breaking changes)
-- **LONG_TERM only** (More comprehensive upgrades)
-- **Both SHORT_TERM and LONG_TERM** (All available upgrades)
+- **Fix PR grouping**: Multiple PRs (up to 10 separate PRs)
+- **Severities to fix**: Critical and High only
+- **Upgrade guidance**: SHORT_TERM only (minimal breaking changes)
 
 #### Collect Provider-Specific Credentials
 
 **For GitHub:**
 
-Ask user: "Do you have a GitHub Personal Access Token (PAT)?"
-- If NO → Ask: "Is `gh` CLI authenticated?"
-  - Check with `gh auth status` using Bash tool
-  - If not authenticated, show: "⚠️ Please authenticate `gh` CLI first: `gh auth login` OR provide a GitHub PAT"
-- If YES → Ask for token (mask in display)
+Ask user for GitHub Personal Access Token (PAT). If they don't have one, show:
+"⚠️ Please create a GitHub PAT at: https://github.com/settings/tokens with 'repo' scope"
 
 **Auto-detect GitHub repository info:**
 
@@ -431,10 +418,10 @@ node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
   {include any other YAML parameters from Step 3} \
   --directory "{dir}" \
   --fixpr-enabled \
-  --fixpr-create-single-pr {true|false} \
-  --fixpr-max-count {number if not single PR} \
-  --fixpr-severities "{CRITICAL,HIGH,...}" \
-  --fixpr-upgrade-guidance "{SHORT_TERM,LONG_TERM}" \
+  --fixpr-create-single-pr false \
+  --fixpr-max-count 10 \
+  --fixpr-severities "CRITICAL,HIGH" \
+  --fixpr-upgrade-guidance "SHORT_TERM" \
   --git-provider "{github|azure|gitlab}" \
   --git-token "{token}" \
   --git-repo "{owner/repo for GitHub, or repo name for Azure}" \
@@ -451,20 +438,16 @@ node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
 - **For Azure:**
   - `--git-repo` is just the repository name
   - Must include `--git-org` and `--git-project`
-- **Upgrade guidance values:**
-  - User chose "SHORT_TERM only" → Use `--fixpr-upgrade-guidance "SHORT_TERM"`
-  - User chose "LONG_TERM only" → Use `--fixpr-upgrade-guidance "LONG_TERM"`
-  - User chose "Both SHORT_TERM and LONG_TERM" → Use `--fixpr-upgrade-guidance "SHORT_TERM,LONG_TERM"`
 
 **DO NOT write "[regenerating with fixpr]" - ACTUALLY execute the command.**
 
 The script will:
 1. Read the existing `polaris_input.json`
-2. Add `fixpr` section with user's choices
+2. Add `fixpr` section with default configuration
 3. Add provider-specific section (github/azure/gitlab) with credentials
 4. Write updated `polaris_input.json`
 
-Show user: "✅ Fix PR configured. Bridge CLI will create {single PR | up to N PRs} with fixes for {severities}."
+Show user: "✅ Fix PR configured. Bridge CLI will create up to 10 PRs with fixes for Critical and High severity issues."
 
 ### Step 4: Detect Bridge CLI Path
 
@@ -718,6 +701,23 @@ Suggest alternative next steps:
 - Open SARIF file in IDE (if generated)
 - Run `/blackduck-init` again for different scan type
 - Run `/blackduck-remediate` later when ready to review issues
+
+### Step 7: Ask About Reverifying Fix PRs (Only if Fix PR was enabled)
+
+**ONLY ask this question IF:**
+- Fix PR was enabled in the scan configuration
+- AND the scan completed successfully
+- AND PRs were created by Bridge CLI
+
+**Ask user:**
+"Would you like to reverify the fix PRs by running scans on the PR branches?"
+
+**If user says YES:**
+- Tell user: "Run `/blackduck-reverify` to scan the PR branches and verify that the fixes resolved the security issues."
+- The AI assistant will then invoke the blackduck-reverify skill
+
+**If user says NO:**
+- Inform user they can run `/blackduck-reverify` later when ready
 
 ## Error Handling
 

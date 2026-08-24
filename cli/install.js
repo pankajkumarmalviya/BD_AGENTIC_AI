@@ -418,8 +418,8 @@ async function installForClaudeCode(skillPath) {
     fs.mkdirSync(skillsDir, { recursive: true });
   }
 
-  // Install all five skills
-  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
+  // Install all six skills
+  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca', 'blackduck-reverify'];
 
   for (const skillName of skills) {
     const sourceSkillPath = skillPath.replace('blackduck-init', skillName);
@@ -439,8 +439,8 @@ async function installForCodex(skillPath) {
     fs.mkdirSync(skillsDir, { recursive: true });
   }
 
-  // Install all five skills
-  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
+  // Install all six skills
+  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca', 'blackduck-reverify'];
 
   for (const skillName of skills) {
     const sourceSkillPath = skillPath.replace('blackduck-init', skillName);
@@ -543,7 +543,8 @@ async function install() {
   info('  /blackduck-polaris - Run Polaris SAST+SCA scans');
   info('  /blackduck-sca - Run Black Duck SCA scans');
   info('  /blackduck-remediate - Fetch detailed security issues');
-  info('  /blackduck-triage - Apply automated fixes\n');
+  info('  /blackduck-triage - Apply automated fixes');
+  info('  /blackduck-reverify - Reverify fix PR branches\n');
 }
 
 async function uninstall() {
@@ -552,7 +553,7 @@ async function uninstall() {
   // Step 1: Remove skill from AI assistants
   const installedAgents = await detectInstalledAgents();
 
-  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
+  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca', 'blackduck-reverify'];
 
   for (const agent of installedAgents) {
     try {
