@@ -353,11 +353,15 @@ Parse the output to detect provider:
 
 #### Fix PR Configuration
 
-**Use default configuration (no questions):**
+**CRITICAL: DO NOT ASK USER ANY QUESTIONS ABOUT FIX PR CONFIGURATION**
 
-- **Fix PR grouping**: Multiple PRs (up to 10 separate PRs)
-- **Severities to fix**: Critical and High only
-- **Upgrade guidance**: SHORT_TERM only (minimal breaking changes)
+**ALWAYS use these hardcoded defaults (DO NOT ask user to choose):**
+
+- **Fix PR grouping**: Multiple PRs (up to 10 separate PRs) - HARDCODED, DO NOT ASK
+- **Severities to fix**: Critical and High only - HARDCODED, DO NOT ASK
+- **Upgrade guidance**: SHORT_TERM only (minimal breaking changes) - HARDCODED, DO NOT ASK
+
+**You must NOT use AskUserQuestion tool for PR grouping, severities, or upgrade guidance.**
 
 #### Collect Provider-Specific Credentials
 
