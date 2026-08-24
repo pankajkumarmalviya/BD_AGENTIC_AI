@@ -58,7 +58,7 @@ Guide users through security scanning by:
 - Any bash scripts or technical commands
 
 **DO show to the user:**
-- Progress indicators: "⏳ Initializing Black Duck scan...", "⏳ Running Polaris SAST+SCA analysis...", "⏳ Generating results..."
+- Progress indicators: "⏳ Initializing scan...", "⏳ Running {scan type} analysis..." (dynamic based on actual scan), "⏳ Generating results..."
 - Questions for missing credentials (URL and Access Token only)
 - Final scan results with clear formatting
 - Error messages if something fails
@@ -115,7 +115,11 @@ The JSON output contains:
 - Get the config object for the selected scan type from `detectedConfigs`
 - Example for Polaris: If `detectedConfigs[0].config.polaris.assessmentTypes` is `["SCA"]`, use `["SCA"]` (NOT the hardcoded `["SCA", "SAST"]`)
 - Extract ALL available fields from the YAML config object:
-  - `serverUrl` - Server URL
+  - `serverUrl` - Server URL (Polaris, Black Duck, Coverity)
+  - `accessToken` - Access token for Polaris
+  - `token` - API token for Black Duck SCA
+  - `username` - Username for Coverity
+  - `password` - Password for Coverity
   - `assessmentTypes` - Array of assessment types (SCA, SAST, etc.)
   - `applicationName` - Application name
   - `projectName` - Project name
@@ -175,22 +179,42 @@ After this step, you should know:
 - Nothing during this detection phase
 - Results will be used silently in Step 1 and Step 3
 
-### Step 1: Check Credentials
+### Step 1: Select Scan Type
 
-**IMPORTANT:** This tool ONLY runs Polaris SAST+SCA scans. No need to ask which scan type.
+**If YAML config detected specific scan type(s):**
+- Use the detected scan type from Step 0
+- If multiple scan types detected, ask user which one to run
 
-**Check for stored credentials from Step 0:**
-- If `credentials.json` has valid Polaris credentials (serverUrl and accessToken are non-empty)
-- Show progress: **"⏳ Initializing Black Duck scan..."**
-- Proceed directly to Step 2 (no questions needed)
+**If no YAML config detected:**
+- Ask user: "Which security scan would you like to run?"
+- Options: Polaris, Black Duck SCA, Coverity, SRM
 
-**If credentials are missing or empty:**
-- Ask for **Polaris Server URL** (e.g., `https://polaris.blackduck.com`)
-- Ask for **Access Token** (will be masked in display)
-- Save to `~/credentials.json` automatically
-- Then proceed to Step 2
+**User selects scan type, then proceed to check credentials for that scan type.**
 
-**Note:** Assessment types are always SCA+SAST (no need to ask)
+### Step 1.5: Check Credentials for Selected Scan Type
+
+**Priority Order (for ALL scan types):**
+1. 🥇 **YAML configuration** - If YAML contains serverUrl AND token/accessToken/username+password, use those
+2. 🥈 **Stored credentials** - If ~/credentials.json has credentials for this scan type, use those
+3. 🥉 **User input** - Ask user for missing credentials
+
+**For Polaris:**
+- If YAML has serverUrl + accessToken: Show "⏳ Initializing Polaris scan... (using YAML config)"
+- Else if credentials.json has serverUrl + accessToken: Show "⏳ Initializing Polaris scan... (using stored credentials)"
+- Else ask for Polaris Server URL and Access Token, save to ~/credentials.json
+
+**For Black Duck SCA:**
+- If YAML has url + token: Show "⏳ Initializing Black Duck SCA scan... (using YAML config)"
+- Else if credentials.json has url + token: Show "⏳ Initializing Black Duck SCA scan... (using stored credentials)"
+- Else ask for Black Duck Server URL and API Token, save to ~/credentials.json
+
+**For Coverity:**
+- If YAML has url + username + password: Show "⏳ Initializing Coverity scan... (using YAML config)"
+- Else if credentials.json has url + username + password: Show "⏳ Initializing Coverity scan... (using stored credentials)"
+- Else ask for Coverity Connect URL, Username, and Password, save to ~/credentials.json
+
+**For SRM:**
+- Similar credential priority for SRM scan type
 
 ### Step 2: Auto-Detect Project Settings
 
@@ -243,24 +267,30 @@ Use this mapping table (if value exists in YAML config, add the corresponding fl
 | `scaLocation` | `--sca-location "value"` | `--sca-location "hybrid"` |
 | `scaType` | `--sca-type "value"` | `--sca-type "upload"` |
 | `sastType` | `--sast-type "value"` | `--sast-type "incremental"` |
-| `waitForScan` (boolean) | `--wait-for-scan` | Always add if true |
-| `sarifCreate` (boolean) | `--sarif-report` | Add if true |
-| `sarifFilePath` | `--sarif-path "value"` | `--sarif-path "results.sarif"` |
-| `sarifGroupScaIssues` (boolean) | `--sarif-group-sca-issues` | Add if true |
-| `sarifSeverities` | `--sarif-severities "value"` | `--sarif-severities "high,critical"` |
-| `sarifIssueTypes` | `--sarif-issue-types "value"` | `--sarif-issue-types "SAST,SCA"` |
-| `prCommentEnabled` (boolean) | `--pr-comment-enabled` | Add if true |
-| `prCommentSeverities` | `--pr-comment-severities "value"` | `--pr-comment-severities "high"` |
+| `waitForScan` (boolean) | `--wait-for-scan` | **Only add if true in YAML** |
+| `sarifCreate` (boolean) | `--sarif-report` | **Only add if true in YAML** |
+| `sarifFilePath` | `--sarif-path "value"` | **Only if sarifCreate is true** |
+| `sarifGroupScaIssues` (boolean) | `--sarif-group-sca-issues` | **Only if sarifCreate is true** |
+| `sarifSeverities` | `--sarif-severities "value"` | **Only if sarifCreate is true** |
+| `sarifIssueTypes` | `--sarif-issue-types "value"` | **Only if sarifCreate is true** |
+| `prCommentEnabled` (boolean) | `--pr-comment-enabled` | **Only add if true in YAML** |
+| `prCommentSeverities` | `--pr-comment-severities "value"` | **Only if prCommentEnabled is true** |
 
 **ACTUALLY RUN THIS COMMAND** using the Bash tool:
 
 Build the command dynamically based on available values:
 - Start with: `node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris`
 - Add `--directory` with current working directory
-- For each field in the mapping table above, check if value exists in YAML or credentials, and add the parameter
+- **For each field in the mapping table above:**
+  - Check if value exists in YAML or credentials
+  - **Only add the parameter if it exists** (don't add defaults)
+  - **Special rules:**
+    - `--wait-for-scan`: Only add if YAML has `waitForScan: true`
+    - `--sarif-report`: Only add if YAML has `sarifCreate: true`
+    - Other SARIF flags: Only add if `--sarif-report` is included
 - Join all parameters with spaces
 
-Example if YAML has `assessmentTypes: ["SCA"]` and `scaLocation: "hybrid"`:
+**Example 1** - YAML has `assessmentTypes: ["SCA"]`, `scaLocation: "hybrid"`, `waitForScan: true`, `sarifCreate: true`:
 ```bash
 node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
   --server-url "https://poc.polaris.blackduck.com/" \
@@ -275,13 +305,166 @@ node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
   --directory "/Users/gshinde/nodecode-action-test"
 ```
 
+**Example 2** - YAML has `assessmentTypes: ["SCA"]`, `scaLocation: "hybrid"` but **NO** waitForScan or sarifCreate:
+```bash
+node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
+  --server-url "https://poc.polaris.blackduck.com/" \
+  --access-token "abc123..." \
+  --app-name "nodecode-action-test" \
+  --project-name "nodecode-action-test" \
+  --assessment-types "SCA" \
+  --sca-location "hybrid" \
+  --branch-name "master" \
+  --directory "/Users/gshinde/nodecode-action-test"
+```
+(Notice: NO `--wait-for-scan` or `--sarif-report` flags)
+
 **DO NOT write "[generating input JSON]" - ACTUALLY execute the Bash command with real values.**
 
 **IMPORTANT:** Use ACTUAL values from YAML/credentials/auto-detection, not placeholders like "<from-yaml>".
 
 After execution:
 1. The script generates `polaris_input.json` and saves configuration to `~/credentials.json`
-2. Proceed automatically to Step 4 (no confirmation needed)
+2. Proceed to Step 3.5 (Fix PR configuration)
+
+### Step 3.5: Configure Fix PR (Optional)
+
+**Ask user:** "Would you like Bridge CLI to automatically create fix PRs for vulnerabilities?"
+
+**If user says NO:**
+- Skip to Step 4
+
+**If user says YES:**
+
+#### Detect Git Provider
+
+**ACTUALLY RUN THIS COMMAND** using Bash tool:
+
+```bash
+# Get git remote URL
+git remote get-url origin 2>/dev/null || echo "NO_REMOTE"
+```
+
+Parse the output to detect provider:
+- If contains `github.com` → GitHub
+- If contains `dev.azure.com` → Azure DevOps
+- If contains `gitlab.com` → GitLab
+- If `NO_REMOTE` → Show error: "⚠️ No git remote found. Fix PR requires a remote repository (GitHub, Azure, or GitLab)."
+
+#### Ask Fix PR Configuration
+
+**Ask user using AskUserQuestion:**
+
+**Question 1:** "How should fixes be grouped?"
+- **Create single PR with all fixes** (Recommended)
+- **Create separate PRs** (up to 10)
+
+**Question 2:** "Which severities should be fixed?"
+- **Critical and High only** (Recommended)
+- **Critical, High, and Medium**
+- **All severities**
+
+**Question 3:** "Which upgrade guidance to apply?"
+- **SHORT_TERM only** (Recommended - minimal breaking changes)
+- **LONG_TERM only** (More comprehensive upgrades)
+- **Both SHORT_TERM and LONG_TERM** (All available upgrades)
+
+#### Collect Provider-Specific Credentials
+
+**For GitHub:**
+
+Ask user: "Do you have a GitHub Personal Access Token (PAT)?"
+- If NO → Ask: "Is `gh` CLI authenticated?"
+  - Check with `gh auth status` using Bash tool
+  - If not authenticated, show: "⚠️ Please authenticate `gh` CLI first: `gh auth login` OR provide a GitHub PAT"
+- If YES → Ask for token (mask in display)
+
+**Auto-detect GitHub repository info:**
+
+**ACTUALLY RUN THESE COMMANDS** using Bash tool:
+
+1. Get git remote URL:
+   ```bash
+   git remote get-url origin 2>/dev/null || echo "NO_REMOTE"
+   ```
+
+2. Parse owner/repo from URL:
+   - GitHub SSH: `git@github.com:owner/repo.git` → extract "owner/repo"
+   - GitHub HTTPS: `https://github.com/owner/repo.git` → extract "owner/repo"
+   - Remove `.git` suffix if present
+
+**Required GitHub info:**
+- `GITHUB_TOKEN` (from user or gh CLI)
+- Repository owner/repo (auto-detected from git remote)
+- Branch name (already detected in Step 2)
+
+**For Azure DevOps:**
+
+Ask user for:
+- **Azure DevOps PAT Token** (required)
+- **Organization name** (e.g., "myorg" from dev.azure.com/myorg)
+- **Project name**
+- **Repository name**
+
+**For GitLab:**
+
+Ask user for:
+- **GitLab Personal Access Token** (required)
+- Repository owner/name (auto-detect from git remote URL)
+
+#### Regenerate Input JSON with Fix PR
+
+**ACTUALLY RUN THIS COMMAND** using Bash tool with additional fixpr parameters:
+
+**IMPORTANT**: Include ALL parameters from Step 3 command, plus fixpr parameters below.
+
+```bash
+node ~/.claude/skills/blackduck-init/cli/generate-input.js --stage polaris \
+  --server-url "{url}" \
+  --access-token "{token}" \
+  --app-name "{app}" \
+  --project-name "{project}" \
+  --assessment-types "{types}" \
+  --branch-name "{branch}" \
+  {include --wait-for-scan ONLY if it was in YAML} \
+  {include --sarif-report ONLY if it was in YAML} \
+  {include any other YAML parameters from Step 3} \
+  --directory "{dir}" \
+  --fixpr-enabled \
+  --fixpr-create-single-pr {true|false} \
+  --fixpr-max-count {number if not single PR} \
+  --fixpr-severities "{CRITICAL,HIGH,...}" \
+  --fixpr-upgrade-guidance "{SHORT_TERM,LONG_TERM}" \
+  --git-provider "{github|azure|gitlab}" \
+  --git-token "{token}" \
+  --git-repo "{owner/repo for GitHub, or repo name for Azure}" \
+  --git-org "{organization for Azure only}" \
+  --git-project "{project for Azure only}"
+```
+
+**Important notes:**
+- Don't add `--wait-for-scan` or `--sarif-report` if they weren't in the YAML config from Step 0
+- **For GitHub:**
+  - `--git-repo` must be in format "owner/repo" (e.g., "bd-gshinde/NodeGoat-G")
+  - `--branch-name` uses the value from Step 2 (already auto-detected)
+  - Don't include `--git-org` or `--git-project` (GitHub doesn't use these)
+- **For Azure:**
+  - `--git-repo` is just the repository name
+  - Must include `--git-org` and `--git-project`
+- **Upgrade guidance values:**
+  - User chose "SHORT_TERM only" → Use `--fixpr-upgrade-guidance "SHORT_TERM"`
+  - User chose "LONG_TERM only" → Use `--fixpr-upgrade-guidance "LONG_TERM"`
+  - User chose "Both SHORT_TERM and LONG_TERM" → Use `--fixpr-upgrade-guidance "SHORT_TERM,LONG_TERM"`
+
+**DO NOT write "[regenerating with fixpr]" - ACTUALLY execute the command.**
+
+The script will:
+1. Read the existing `polaris_input.json`
+2. Add `fixpr` section with user's choices
+3. Add provider-specific section (github/azure/gitlab) with credentials
+4. Write updated `polaris_input.json`
+
+Show user: "✅ Fix PR configured. Bridge CLI will create {single PR | up to N PRs} with fixes for {severities}."
 
 ### Step 4: Detect Bridge CLI Path
 
@@ -326,18 +509,41 @@ After execution:
 
 ### Step 5: Execute Scan
 
-**Show progress:** "⏳ Running Polaris SAST+SCA analysis... (this may take a few minutes)"
+**FIRST: Build dynamic progress message**
+
+Determine the scan type from Step 1 (Polaris, Black Duck SCA, Coverity, or SRM).
+
+**For Polaris scans:**
+- **ACTUALLY READ** `polaris_input.json` using the Read tool
+- Look for: `data.polaris.assessment.types` array
+- Build message based on assessment types:
+  - If types = ["SCA"] only: "⏳ Running Polaris SCA analysis... (this may take a few minutes)"
+  - If types = ["SAST"] only: "⏳ Running Polaris SAST analysis... (this may take a few minutes)"
+  - If types = ["SCA", "SAST"]: "⏳ Running Polaris SAST+SCA analysis... (this may take a few minutes)"
+  - Other combinations: List them
+
+**For Black Duck SCA scans:**
+- Check if full or incremental scan (from Step 2)
+- "⏳ Running Black Duck SCA {full|incremental} scan... (this may take a few minutes)"
+
+**For Coverity scans:**
+- "⏳ Running Coverity analysis... (this may take a few minutes)"
+
+**For SRM scans:**
+- "⏳ Running SRM analysis... (this may take a few minutes)"
+
+**DO NOT hardcode the message - build it dynamically based on actual scan configuration.**
 
 **ACTUALLY RUN THE BRIDGE CLI** using the Bash tool with the path from Step 4:
 
 ```bash
-<bridge-cli-path> --stage polaris --input polaris_input.json --out polaris_output.json
+<bridge-cli-path> --stage {polaris|blackducksca|coverity|srm} --input {stage}_input.json --out {stage}_output.json
 ```
 
 **DO NOT write "[running bridge-cli]" or "[executing scan]" - ACTUALLY call the Bash tool with:**
 - Command: Use the bridge-cli path found in Step 4
-- Timeout: 600000 (10 minutes)
-- Description: "Run Polaris SAST+SCA scan"
+- Timeout: 1500000 (25 minutes)
+- Description: Match your progress message above
 
 After execution:
 1. Check exit code - if non-zero, scan failed (show error to user)
@@ -499,10 +705,19 @@ If remote repo was cloned:
 - Ask: **"Delete temporary clone? (recommended)"**
 - Clean up `/tmp/<repo-name>-blackduck-init` if user confirms
 
-Suggest next steps:
-- View detailed results in web UI
-- Open SARIF file in IDE
-- Run `/blackduck-init` again for different stage
+**Ask user about remediation:**
+"Would you like to fetch detailed issue information and generate a remediation report?"
+
+**If user says YES:**
+- Tell user: "Run `/blackduck-remediate` to fetch all issues from Polaris and generate a detailed markdown report with remediation steps."
+- The AI assistant will then invoke the blackduck-remediate skill
+
+**If user says NO or wants to do it later:**
+Suggest alternative next steps:
+- View detailed results in web UI (show the link)
+- Open SARIF file in IDE (if generated)
+- Run `/blackduck-init` again for different scan type
+- Run `/blackduck-remediate` later when ready to review issues
 
 ## Error Handling
 

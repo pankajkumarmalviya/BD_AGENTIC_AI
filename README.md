@@ -4,7 +4,7 @@ One command. Security scans everywhere. Bridge CLI integration for 30+ AI coding
 
 ## What You Get
 
-Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gemini CLI, and 25+ more AI assistants. Type `/blackduck-init` → get interactive security scanning with Polaris, Black Duck SCA, Coverity, or SRM. No JSON config memorization. No manual Bridge CLI setup. Just answer questions, get results.
+Bridge CLI scanner drops into Claude Code, Cursor, Windsurf, Cline, Copilot, Gemini CLI, and 25+ more AI assistants with **5 specialized skills**. Type `/blackduck-init` for multi-scanner workflows, or use dedicated skills (`/blackduck-polaris`, `/blackduck-sca`) for streamlined single-scanner projects. Complete remediation workflow included (`/blackduck-remediate`, `/blackduck-triage`). No JSON config memorization. No manual Bridge CLI setup. Just answer questions, get results.
 
 ### Before
 
@@ -70,7 +70,59 @@ See [INSTALL.md](INSTALL.md) for per-agent details.
 
 ## What It Does
 
-Bridge scanner skill = interactive Bridge CLI wrapper. Asks questions. Builds JSON. Runs scans. Shows results.
+Five skills for complete security workflow:
+
+**1. `/blackduck-init`** - Interactive Bridge CLI wrapper
+- Asks questions, builds JSON, runs scans, shows results
+- Supports Polaris, Black Duck SCA, Coverity, and SRM
+- Auto-detects configuration from existing YAML files (GitHub Actions, GitLab CI, Azure DevOps, etc.)
+- Stores credentials for future scans
+- Optional Fix PR automation via Bridge CLI
+
+**2. `/blackduck-polaris`** - Dedicated Polaris scanner
+- Streamlined workflow - always runs Polaris SAST+SCA
+- Skips scan type selection for faster execution
+- All same features as /blackduck-init (YAML detection, fixpr, credentials)
+- Perfect for Polaris-only projects
+
+**3. `/blackduck-sca`** - Dedicated SCA scanner
+- Streamlined workflow - always runs Black Duck SCA
+- SCA-specific options (full vs incremental scan)
+- License analysis and policy violation detection
+- Perfect for SCA-only projects
+
+**4. `/blackduck-remediate`** - Issue reporter
+- Fetches detailed security issues from Polaris via API
+- Generates markdown report (`POLARIS_ISSUES.md`) with remediation steps
+- Extracts issue names, severities, file locations, CVEs, and fixes
+
+**5. `/blackduck-triage`** - Automated fixer
+- Applies fixes to code based on remediation guidance
+- Creates new branch with random ID (`blackduck-fixes-{id}`)
+- Fixes issues iteratively (user confirms each)
+- Commits, pushes, and creates PR automatically
+- Offers to re-scan to verify fixes
+
+### Complete Workflow
+
+```
+# Multi-scanner workflow
+/blackduck-init → /blackduck-remediate → /blackduck-triage → /blackduck-init
+     (scan)            (fetch issues)        (apply fixes)      (verify)
+
+# Streamlined Polaris workflow
+/blackduck-polaris → /blackduck-remediate → /blackduck-triage → /blackduck-polaris
+   (SAST+SCA)            (fetch issues)        (apply fixes)      (verify)
+
+# Streamlined SCA workflow
+/blackduck-sca → view results in web UI → manual remediation → /blackduck-sca
+  (SCA scan)                                                      (verify)
+```
+
+**Choose your workflow:**
+- **Multi-scanner projects**: Use `/blackduck-init` to choose between Polaris, SCA, Coverity, SRM
+- **Polaris-only projects**: Use `/blackduck-polaris` for faster workflow
+- **SCA-only projects**: Use `/blackduck-sca` for faster workflow
 
 ### Supported Scan Types
 
@@ -92,19 +144,64 @@ Bridge scanner skill = interactive Bridge CLI wrapper. Asks questions. Builds JS
 
 ## Usage
 
-After install, type `/blackduck-init` in any supported AI assistant:
+After install, choose your skill based on your workflow:
 
+### Multi-Scanner Projects
 ```
 You: /blackduck-init
 
 AI guides you through:
-1. Select scan type (Polaris/BlackDuck/Coverity/SRM/Signal)
+1. Select scan type (Polaris/BlackDuck/Coverity/SRM)
 2. Choose target (local directory or GitHub URL)
-3. Provide credentials (or use MCP for Signal)
-4. Configure options
-5. Review generated JSON (except Signal - uses MCP tools)
+3. Provide credentials
+4. Configure options (including optional Fix PR automation)
+5. Review generated JSON
 6. Run scan
 7. View formatted results
+```
+
+### Polaris-Only Projects
+```
+You: /blackduck-polaris
+
+AI runs Polaris SAST+SCA:
+- Auto-detects YAML config and credentials
+- Skips scan type selection
+- Runs Polaris scan immediately
+- Optionally creates fix PRs
+- Shows formatted results
+```
+
+### SCA-Only Projects
+```
+You: /blackduck-sca
+
+AI runs Black Duck SCA:
+- Auto-detects YAML config and credentials
+- Choose: Incremental or Full scan
+- Runs SCA analysis with license detection
+- Optionally creates fix PRs
+- Shows vulnerability breakdown and policy violations
+```
+
+### Remediation Workflow
+```
+You: /blackduck-remediate
+
+AI fetches detailed issues:
+- Connects to Polaris API
+- Fetches all security issues
+- Generates POLARIS_ISSUES.md report
+- Includes CVEs, CWEs, remediation steps
+
+You: /blackduck-triage
+
+AI applies automated fixes:
+- Creates new branch (blackduck-fixes-{id})
+- Fixes issues one by one
+- Commits and pushes changes
+- Creates pull request
+- Offers to re-scan
 ```
 
 ## Requirements
@@ -117,6 +214,37 @@ AI guides you through:
 That's it. Installer handles Bridge CLI download and installation automatically. For Signal, see MCP setup instructions.
 
 ## Examples
+
+### Complete Security Fix Workflow
+
+```
+# Step 1: Run scan
+/blackduck-init
+→ Polaris
+→ Server: https://poc.polaris.blackduck.com
+→ Token: ***
+→ ✅ Scan complete: 10 Critical, 152 High
+
+# Step 2: Fetch detailed issues
+/blackduck-remediate
+→ ⏳ Fetching issues from Polaris...
+→ ✅ Found 12 security issues
+→ 📄 Full report saved to: POLARIS_ISSUES.md
+
+# Step 3: Apply automated fixes
+/blackduck-triage
+→ Fix critical only (3 issues)
+→ ✅ Created branch: blackduck-fixes-247
+→ 🔧 Fixing node-tar vulnerability...
+→ ✅ Applied fix: Upgraded tar 4.4.8 → 7.5.10
+→ ✅ Committed and pushed
+→ ✅ PR created: https://github.com/user/repo/pull/42
+
+# Step 4: Re-scan to verify
+/blackduck-init
+→ ✅ Scan complete: 0 Critical, 149 High
+→ 🎉 All critical issues fixed!
+```
 
 ### Polaris SCA Scan
 
@@ -202,7 +330,11 @@ Bridge scanner no phone home. No telemetry. No accounts. No backend. All local. 
 ## Documentation
 
 - [Installation Guide](INSTALL.md) - Per-agent install instructions
-- [Skill README](skills/blackduck-init/README.md) - How the skill works
+- [Multi-Scanner Skill](skills/blackduck-init/README.md) - `/blackduck-init` documentation
+- [Polaris Skill](skills/blackduck-polaris/README.md) - `/blackduck-polaris` documentation
+- [SCA Skill](skills/blackduck-sca/README.md) - `/blackduck-sca` documentation
+- [Remediate Skill](skills/blackduck-remediate/README.md) - `/blackduck-remediate` documentation
+- [Triage Skill](skills/blackduck-triage/README.md) - `/blackduck-triage` documentation
 - [INPUT_JSON_FORMAT.md](https://github.com/pankajkumarmalviya/BD_AGENTIC_AI/blob/master/docs/INPUT_JSON_FORMAT.md) - Bridge CLI JSON reference
 
 ## Contributing

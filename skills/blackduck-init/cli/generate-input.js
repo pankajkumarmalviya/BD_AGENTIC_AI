@@ -268,6 +268,108 @@ function generatePolarisInput(params) {
     }
   }
 
+  // Fix PR configuration
+  if (params['fixpr-enabled'] === 'true') {
+    input.data.polaris.fixpr = {
+      enabled: true
+    };
+
+    // Single PR vs multiple PRs
+    if (params['fixpr-create-single-pr'] === 'true') {
+      input.data.polaris.fixpr.createSinglePR = true;
+    } else if (params['fixpr-max-count']) {
+      input.data.polaris.fixpr.maxCount = parseInt(params['fixpr-max-count']);
+    }
+
+    // Severity filter
+    if (params['fixpr-severities']) {
+      input.data.polaris.fixpr.filter = {
+        severities: params['fixpr-severities'].split(',')
+      };
+    }
+
+    // Upgrade guidance
+    if (params['fixpr-upgrade-guidance']) {
+      input.data.polaris.fixpr.useUpgradeGuidance = params['fixpr-upgrade-guidance'].split(',');
+    }
+  }
+
+  // Git provider configuration for Fix PR
+  if (params['git-provider']) {
+    const provider = params['git-provider'];
+
+    if (provider === 'github') {
+      // GitHub configuration
+      input.data.github = {
+        user: {
+          token: params['git-token']
+        }
+      };
+
+      // Extract owner/repo from git-repo parameter
+      if (params['git-repo']) {
+        const [owner, repo] = params['git-repo'].split('/');
+        input.data.github.repository = {
+          name: repo,
+          owner: {
+            name: owner
+          },
+          branch: {
+            name: params['branch-name'] || 'main'
+          }
+        };
+      }
+
+      // Set bridge.invoked.from for GitHub
+      input.data.bridge.invoked.from = 'github-cloud';
+
+    } else if (provider === 'azure') {
+      // Azure DevOps configuration
+      input.data.azure = {
+        user: {
+          token: params['git-token']
+        },
+        organization: {
+          name: params['git-org']
+        },
+        project: {
+          name: params['git-project']
+        },
+        repository: {
+          name: params['git-repo'],
+          branch: {
+            name: params['branch-name'] || 'main'
+          }
+        }
+      };
+
+      // Set bridge.invoked.from for Azure
+      input.data.bridge.invoked.from = 'ado-cloud';
+
+    } else if (provider === 'gitlab') {
+      // GitLab configuration
+      input.data.gitlab = {
+        user: {
+          token: params['git-token']
+        }
+      };
+
+      // Extract owner/repo from git-repo parameter
+      if (params['git-repo']) {
+        const [owner, repo] = params['git-repo'].split('/');
+        input.data.gitlab.repository = {
+          name: repo,
+          owner: {
+            name: owner
+          }
+        };
+      }
+
+      // Set bridge.invoked.from for GitLab
+      input.data.bridge.invoked.from = 'gitlab-cloud';
+    }
+  }
+
   return input;
 }
 

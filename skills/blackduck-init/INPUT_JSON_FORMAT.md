@@ -66,7 +66,7 @@ This document describes the input.json formats accepted by Bridge CLI for differ
       "fixpr": {
         "enabled": "boolean - Enable Fix PR feature",
         "maxCount": "number - OPTIONAL: Maximum number of fix PRs to create",
-        "useUpgradeGuidance": ["string array - OPTIONAL: Upgrade guidance options"],
+        "useUpgradeGuidance": ["string array - OPTIONAL: Valid values: SHORT_TERM, LONG_TERM"],
         "filter": {
           "severities": ["string array - OPTIONAL: Filter fixes by severity"]
         }
@@ -169,6 +169,13 @@ This document describes the input.json formats accepted by Bridge CLI for differ
 - **waitForScan**: Boolean to wait for scan completion
 - **prcomment**: Only for pull request scans
 - **fixpr**: Only for non-PR scans
+  - **fixpr.enabled**: Enable Fix PR feature
+  - **fixpr.maxCount**: Maximum number of fix PRs to create
+  - **fixpr.useUpgradeGuidance**: Array of upgrade guidance
+    - Valid values: `["SHORT_TERM"]`, `["LONG_TERM"]`, or `["SHORT_TERM", "LONG_TERM"]`
+    - `SHORT_TERM`: Minimal breaking changes
+    - `LONG_TERM`: Comprehensive upgrades
+  - **fixpr.filter.severities**: Array of severities (e.g., `["CRITICAL", "HIGH"]`)
 - **reports**: Only for non-PR scans
 
 #### project
@@ -240,7 +247,7 @@ This document describes the input.json formats accepted by Bridge CLI for differ
         "enabled": "boolean - Enable Fix PR feature",
         "maxCount": "number - OPTIONAL: Max number of fix PRs",
         "createSinglePR": "boolean - OPTIONAL: Create single PR for all fixes",
-        "useUpgradeGuidance": ["string array - OPTIONAL: Upgrade guidance filter"],
+        "useUpgradeGuidance": ["string array - OPTIONAL: Valid values: SHORT_TERM, LONG_TERM"],
         "filter": {
           "severities": ["string array - OPTIONAL: Filter fixes by severity"]
         }
@@ -340,7 +347,10 @@ This document describes the input.json formats accepted by Bridge CLI for differ
 - **fixpr.maxCount**: Maximum fix PRs (cannot be used with `createSinglePR: true`)
 - **fixpr.createSinglePR**: Create one PR with all fixes
 - **fixpr.useUpgradeGuidance**: Array of upgrade guidance filters
-- **fixpr.filter.severities**: Array of severities to filter
+  - Valid values: `["SHORT_TERM"]`, `["LONG_TERM"]`, or `["SHORT_TERM", "LONG_TERM"]`
+  - `SHORT_TERM`: Minimal breaking changes (e.g., patch/minor version upgrades)
+  - `LONG_TERM`: More comprehensive upgrades (e.g., major version upgrades)
+- **fixpr.filter.severities**: Array of severities to filter (e.g., `["CRITICAL", "HIGH"]`)
 - **reports**: Only for non-PR scans
 
 #### detect

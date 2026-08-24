@@ -192,41 +192,36 @@ function compareVersions(current, latest) {
 async function installBridgeCLI(force = false) {
   // log('\n🔧 Installing Bridge CLI\n', colors.cyan);
 
-  // Check if already installed
-  const existingVersionString = await checkBridgeCLIInstalled();
-
-  if (existingVersionString && !force) {
-    // const existingVersion = parseVersion(existingVersionString);
-    // const latestVersion = BRIDGE_CLI_VERSION;
-
-    // success(`Bridge CLI already installed: ${existingVersionString}`);
-
-    // if (existingVersion && latestVersion) {
-    //   const comparison = compareVersions(existingVersion, latestVersion);
-
-    //   if (comparison < 0) {
-    //     warn(`\n⚠️  Newer version available: ${latestVersion}`);
-    //     info('To update Bridge CLI, run:');
-    //     info('  node cli/install.js --update-bridge-cli');
-    //     info('\nOr manually download from:');
-    //     info('  https://artifactory.tools.duckutil.net/artifactory/clops-local/integrations/bridge/binaries/bridge-cli-bundle/\n');
-    //   } else if (comparison === 0) {
-    //     success('You have the latest version!\n');
-    //   } else {
-    //     info(`You have a newer version (${existingVersion}) than bundled (${latestVersion})\n`);
-    //   }
-    // }
-
-    // Already installed, skip to 80%
-    return;
-  }
-
-  if (force && existingVersionString) {
-    info(`Current version: ${existingVersionString}`);
-    info(`Reinstalling with version: ${BRIDGE_CLI_VERSION}\n`);
-  }
-
   try {
+    // ALWAYS delete existing Bridge CLI installations before installing fresh
+    const installPath = getBridgeCLIInstallPath();
+
+    // Remove from installation directory
+    if (fs.existsSync(installPath)) {
+      const files = fs.readdirSync(installPath);
+      const bridgeDirs = files.filter(f => f.startsWith('bridge-cli-bundle'));
+
+      for (const bundleDir of bridgeDirs) {
+        const bundlePath = path.join(installPath, bundleDir);
+        fs.rmSync(bundlePath, { recursive: true, force: true });
+      }
+    }
+
+    // Remove from repository root
+    try {
+      const repoRoot = path.join(__dirname, '..');
+      const repoFiles = fs.readdirSync(repoRoot);
+      const repoBridgeDirs = repoFiles.filter(f => f.startsWith('bridge-cli-bundle'));
+
+      for (const bundleDir of repoBridgeDirs) {
+        const bundlePath = path.join(repoRoot, bundleDir);
+        if (fs.existsSync(bundlePath)) {
+          fs.rmSync(bundlePath, { recursive: true, force: true });
+        }
+      }
+    } catch (err) {
+      // Ignore errors from repo cleanup
+    }
     // Detect platform
     const platformId = detectPlatform();
     // info(`Detected platform: ${platformId}`);
@@ -247,8 +242,7 @@ async function installBridgeCLI(force = false) {
 
     await downloadFile(downloadUrl, archivePath, false); // false = show download progress
 
-    // Determine installation path
-    const installPath = getBridgeCLIInstallPath();
+    // Ensure installation directory exists
     if (!fs.existsSync(installPath)) {
       fs.mkdirSync(installPath, { recursive: true });
     }
@@ -418,43 +412,62 @@ function getSkillPath() {
 async function installForClaudeCode(skillPath) {
   const claudeDir = path.join(os.homedir(), '.claude');
   const skillsDir = path.join(claudeDir, 'skills');
-  const targetDir = path.join(skillsDir, 'blackduck-init');
 
   // Create skills directory if it doesn't exist
   if (!fs.existsSync(skillsDir)) {
     fs.mkdirSync(skillsDir, { recursive: true });
   }
 
-  // Copy skill files (cli/ directory is already inside skillPath)
-  copyDirectory(skillPath, targetDir);
+  // Install all five skills
+  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
 
-  success(`Installed for Claude Code at ${targetDir}`);
+  for (const skillName of skills) {
+    const sourceSkillPath = skillPath.replace('blackduck-init', skillName);
+    if (fs.existsSync(sourceSkillPath)) {
+      const targetDir = path.join(skillsDir, skillName);
+      copyDirectory(sourceSkillPath, targetDir);
+      success(`Installed ${skillName} for Claude Code at ${targetDir}`);
+    }
+  }
 }
 
 async function installForCodex(skillPath) {
   const codexDir = path.join(os.homedir(), '.codex');
   const skillsDir = path.join(codexDir, 'skills');
-  const targetDir = path.join(skillsDir, 'blackduck-init');
 
   if (!fs.existsSync(skillsDir)) {
     fs.mkdirSync(skillsDir, { recursive: true });
   }
 
-  // Copy skill files (cli/ directory is already inside skillPath)
-  copyDirectory(skillPath, targetDir);
+  // Install all five skills
+  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
 
-  success(`Installed for Codex at ${targetDir}`);
+  for (const skillName of skills) {
+    const sourceSkillPath = skillPath.replace('blackduck-init', skillName);
+    if (fs.existsSync(sourceSkillPath)) {
+      const targetDir = path.join(skillsDir, skillName);
+      copyDirectory(sourceSkillPath, targetDir);
+      success(`Installed ${skillName} for Codex at ${targetDir}`);
+    }
+  }
 }
 
 async function installViaSkillsCLI(provider) {
   try {
     info(`Installing via npx skills for ${provider.label}...`);
     const skillPath = getSkillPath();
-    const skillFile = path.join(skillPath, 'SKILL.md');
 
-    // Use npx skills add command
-    await execAsync(`npx skills add ${skillFile} -a ${provider.profile}`);
-    success(`Installed for ${provider.label} via npx skills`);
+    // Install all five skills
+    const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
+
+    for (const skillName of skills) {
+      const sourceSkillPath = skillPath.replace('blackduck-init', skillName);
+      if (fs.existsSync(sourceSkillPath)) {
+        const skillFile = path.join(sourceSkillPath, 'SKILL.md');
+        await execAsync(`npx skills add ${skillFile} -a ${provider.profile}`);
+        success(`Installed ${skillName} for ${provider.label} via npx skills`);
+      }
+    }
   } catch (err) {
     warn(`Could not install for ${provider.label}: ${err.message}`);
   }
@@ -524,7 +537,13 @@ async function install() {
   }
 
   process.stdout.write(` ✓\n`);
-  log('\n✅ Installation complete! Use /blackduck-init to start\n', colors.green);
+  log('\n✅ Installation complete!\n', colors.green);
+  info('Available skills:');
+  info('  /blackduck-init - Run security scans (Polaris, SCA, Coverity)');
+  info('  /blackduck-polaris - Run Polaris SAST+SCA scans');
+  info('  /blackduck-sca - Run Black Duck SCA scans');
+  info('  /blackduck-remediate - Fetch detailed security issues');
+  info('  /blackduck-triage - Apply automated fixes\n');
 }
 
 async function uninstall() {
@@ -533,19 +552,25 @@ async function uninstall() {
   // Step 1: Remove skill from AI assistants
   const installedAgents = await detectInstalledAgents();
 
+  const skills = ['blackduck-init', 'blackduck-remediate', 'blackduck-triage', 'blackduck-polaris', 'blackduck-sca'];
+
   for (const agent of installedAgents) {
     try {
       if (agent.id === 'claude-code') {
-        const targetDir = path.join(os.homedir(), '.claude', 'skills', 'blackduck-init');
-        if (fs.existsSync(targetDir)) {
-          fs.rmSync(targetDir, { recursive: true });
-          success(`Removed from Claude Code`);
+        for (const skillName of skills) {
+          const targetDir = path.join(os.homedir(), '.claude', 'skills', skillName);
+          if (fs.existsSync(targetDir)) {
+            fs.rmSync(targetDir, { recursive: true });
+            success(`Removed ${skillName} from Claude Code`);
+          }
         }
       } else if (agent.id === 'codex') {
-        const targetDir = path.join(os.homedir(), '.codex', 'skills', 'blackduck-init');
-        if (fs.existsSync(targetDir)) {
-          fs.rmSync(targetDir, { recursive: true });
-          success(`Removed from Codex`);
+        for (const skillName of skills) {
+          const targetDir = path.join(os.homedir(), '.codex', 'skills', skillName);
+          if (fs.existsSync(targetDir)) {
+            fs.rmSync(targetDir, { recursive: true });
+            success(`Removed ${skillName} from Codex`);
+          }
         }
       }
       // Note: For agents using npx skills, users need to remove via their IDE
@@ -628,9 +653,9 @@ async function main() {
   } else if (args.includes('--list')) {
     await listAgents();
   } else if (args.includes('--update-bridge-cli')) {
-    // Force reinstall Bridge CLI
+    // Note: Regular install now always updates Bridge CLI (deletes old, downloads new)
     log('\n🔄 Updating Bridge CLI\n', colors.cyan);
-    await installBridgeCLI(true); // Pass force=true
+    await installBridgeCLI();
     log('\n✓ Bridge CLI update complete\n', colors.green);
   } else {
     await install();

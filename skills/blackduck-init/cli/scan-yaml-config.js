@@ -257,6 +257,9 @@ function extractBridgeEnvVars(data) {
     if (envVars.BRIDGE_POLARIS_SERVERURL) {
       polarisConfig.serverUrl = envVars.BRIDGE_POLARIS_SERVERURL;
     }
+    if (envVars.BRIDGE_POLARIS_ACCESSTOKEN) {
+      polarisConfig.accessToken = envVars.BRIDGE_POLARIS_ACCESSTOKEN;
+    }
     if (envVars.BRIDGE_POLARIS_APPLICATION_NAME) {
       polarisConfig.applicationName = envVars.BRIDGE_POLARIS_APPLICATION_NAME;
     }
@@ -337,6 +340,9 @@ function extractBridgeEnvVars(data) {
     if (envVars.BRIDGE_BLACKDUCKSCA_URL) {
       bdConfig.url = envVars.BRIDGE_BLACKDUCKSCA_URL;
     }
+    if (envVars.BRIDGE_BLACKDUCKSCA_TOKEN) {
+      bdConfig.token = envVars.BRIDGE_BLACKDUCKSCA_TOKEN;
+    }
     if (envVars.BRIDGE_BLACKDUCKSCA_SCAN_FULL !== undefined) {
       bdConfig.scanType = envVars.BRIDGE_BLACKDUCKSCA_SCAN_FULL === 'true' ? 'full' : 'incremental';
     }
@@ -356,6 +362,9 @@ function extractBridgeEnvVars(data) {
     }
     if (envVars.BRIDGE_COVERITY_CONNECT_USER_NAME) {
       covConfig.username = envVars.BRIDGE_COVERITY_CONNECT_USER_NAME;
+    }
+    if (envVars.BRIDGE_COVERITY_CONNECT_USER_PASSWORD) {
+      covConfig.password = envVars.BRIDGE_COVERITY_CONNECT_USER_PASSWORD;
     }
     if (envVars.BRIDGE_COVERITY_CONNECT_PROJECT_NAME) {
       covConfig.projectName = envVars.BRIDGE_COVERITY_CONNECT_PROJECT_NAME;
